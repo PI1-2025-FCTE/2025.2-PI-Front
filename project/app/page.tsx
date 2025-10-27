@@ -1,5 +1,8 @@
 import styles from "./page.module.css";
 
+import Link from "next/link";
+
+
 export default function Home() {
   return (
     <main className={styles.container}>
@@ -17,7 +20,9 @@ export default function Home() {
 
       {/* Botão */}
       <div className={styles.center}>
-        <button className={styles.button}>CONECTAR</button>
+        <Link href="/home">
+          <button className={styles.button}>CONECTAR</button>
+        </Link>
       </div>
     </main>
   );
