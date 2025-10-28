@@ -5,7 +5,7 @@ import SideBar from "@/components/SideBar";
 import Header from "@/components/Header";
 import Details from "@/components/Details";
 import Graph from "@/components/Graph";
-import DownloadButton from "@/components/DownloadButton";
+import Button from "@/components/Button";
 
 export default function Route() {
     const [sideBar, setSideBar] = useState(false);
@@ -36,7 +36,7 @@ export default function Route() {
                                 </div>
                             </div>
                             <div className="h-10"></div>
-                            <DownloadButton/>
+                            <Button text="BAIXAR RELATÓRIO"/>
                         </div>
                     </div>
                 </div>)}
