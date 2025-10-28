@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import SideBar from "@/components/SideBar";
-import Header from "@/components/Header";
-import {ConnectionStatus, DisponibilityStatus} from "@/components/StatusSection";
-import Button from "@/components/Button";
+import SideBar from "@/app/components/SideBar";
+import Header from "@/app/components/Header";
+import {ConnectionStatus, DisponibilityStatus} from "@/app/components/StatusSection";
+import Button from "@/app/components/Button";
 
 
 export default function Instruction() {

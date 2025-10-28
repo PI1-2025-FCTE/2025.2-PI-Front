@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import SideBar from "@/components/SideBar";
-import Header from "@/components/Header";
-import Details from "@/components/Details";
-import Graph from "@/components/Graph";
-import Button from "@/components/Button";
+import SideBar from "@/app/components/SideBar";
+import Header from "@/app/components/Header";
+import Details from "@/app/components/Details";
+import Graph from "@/app/components/Graph";
+import Button from "@/app/components/Button";
 
 export default function Route() {
     const [sideBar, setSideBar] = useState(false);

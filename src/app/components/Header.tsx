@@ -1,3 +1,5 @@
+"use client";
+
 import { SlMenu } from "react-icons/sl";
 
 type HeaderProps = {
