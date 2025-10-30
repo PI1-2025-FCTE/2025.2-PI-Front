@@ -3,35 +3,55 @@
 import { SlArrowLeft } from "react-icons/sl";
 import Link from "next/link";
 import Button from "./Button";
+import { RouteBox } from "./RouteBox";
 
 type SideBarProps = {
     onClick: () => void,
-    instruction?: boolean,
-    routes?: boolean,
-    route?: boolean;
+    instruction?: boolean;
 }
 
-export default function SideBar({onClick, instruction, routes, route}: SideBarProps) {
+export default function SideBar({onClick, instruction}: SideBarProps) {
+    
+    const size = 10;
+    const routes = Array(size);
+    for(let i = 0; i < size; i++) {
+        routes[i] = i+1;
+    }
+    
     return(
         <div className="min-h-screen w-full bg-[#7398B7]">
-                            <div className="min-h-screen w-[450px] bg-[#446784] flex flex-col items-center gap-10">
-                                <div className="flex w-[400] justify-end py-10">
-                                    <button>
-                                        <SlArrowLeft onClick={onClick} className=" text-[#D9D9D9] text-[35px] font-bold transition hover:scale-110"/>
-                                    </button>
-                                </div>
-                                {instruction && (<Button onClick={onClick} text={"INSTRUÇÕES"}/>)}
-                                {(routes || route) &&( 
-                                <Link href={"/instruction"}>
-                                    <Button text={"INSTRUÇÕES"}/>
-                                </Link>)}
-                                {routes && (<Button onClick={onClick} text={"PERCURSOS"}/>)}
-                                {(instruction || route) &&( 
-                                <Link href={"/route"}>
-                                    <Button text={"PERCURSOS"}/>
-                                </Link>)}
-                            </div>
-                                
+            <div className="min-h-screen w-[450px] bg-[#446784] flex flex-col items-center ">
+                <div className="flex h-[100px] w-[400px] justify-end">
+                    <button>
+                        <SlArrowLeft onClick={onClick} className=" text-[#D9D9D9] text-[35px] font-bold transition hover:scale-110"/>
+                    </button>
+                </div>
+                {instruction ? (    
+                <div className="mt-16 h-[355px] w-[440px] overflow-auto bg-[#446784] rounded-xl">
+                    {routes.map((value, index) => (
+                        <div key={index} className="pl-5 py-1">
+                            <RouteBox index={value}/>
                         </div>
+                    ))}
+                </div>) : 
+                (<div className="mt-10 h-[525px] w-[440px] overflow-auto bg-[#446784] rounded-xl">
+                    {routes.map((value, index) => (
+                        <div key={index} className="pl-5 py-1">
+                            <RouteBox index={value}/>
+                        </div>
+                    ))}
+                </div>)}
+            
+                
+            
+                {instruction && (
+                <div className="mt-16">
+                    <Link href={"/"} className="">
+                        <Button text="INSTRUÇÃO"/>
+                    </Link>
+                </div>
+                )}
+            </div>
+        </div>
     );
 }

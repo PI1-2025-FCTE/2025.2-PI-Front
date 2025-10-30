@@ -19,7 +19,7 @@ export default function Route() {
     return(
         <div>
             {sideBar ? 
-                (<SideBar onClick={handleClick} route={true}/>) 
+                (<SideBar onClick={handleClick} instruction={true}/>) 
                 : 
                 (<div className="min-h-screen w-full bg-[#1E1E1E] flex flex-col items-center">
                     <Header onClick={handleClick}/>
