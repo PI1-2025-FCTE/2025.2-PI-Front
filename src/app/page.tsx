@@ -55,21 +55,21 @@ export default function Home() {
             : 
             (<div className="min-h-screen w-full bg-[#1E1E1E]">
                 <Header onClick={handleClick}/>
-                <div className="flex my-10 mx-10 h-[600px]">
-                    <div className="flex flex-col gap-10">
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 my-6 lg:my-10 mx-4 lg:mx-10">
+                    <div className="flex flex-col gap-6 lg:gap-10 w-full lg:w-auto">
                         <ConnectionStatus onClick={changeConection} evaluate={connection}/>
                         <DisponibilityStatus onClick={changeDisponiblity} evaluate={disponibility}/>
                         {!connection &&
-                        (<div className="mt-[220px]">
+                        (<div className="lg:mt-[220px]">
                             <Button onClick={connect} text={"CONECTAR"}/>
                         </div>)}
                         {connection && !disponibility && (
-                        <div className="mt-[220px]">
+                        <div className="lg:mt-[220px]">
                             <Button onClick={stopRoute} text={"PARAR TRAJETO"}/>
                         </div>)}
                     </div>
-                    <div className="ml-14 h-[600px] w-[1000px] bg-[#7398B7] rounded-xl flex flex-col justify-center items-center">
-                        <textarea className="mt-5 h-[460px] w-[900px] bg-[#434343] text-white p-5 rounded-xl" />
+                    <div className="w-full lg:flex-1 min-h-[400px] lg:h-[600px] bg-[#7398B7] rounded-xl flex flex-col justify-center items-center p-4 lg:p-6">
+                        <textarea className="w-full max-w-full h-[300px] lg:h-[460px] bg-[#434343] text-white p-4 lg:p-5 rounded-xl resize-none" />
                         <div className="h-5"/>
                         {(connection && disponibility) ? 
                         (<button onClick={sendInstruction} className="h-10 w-[100px] bg-blue-600 rounded-xl text-white transition hover:scale-110">Enviar</button>) : (<div className="h-10 w-[100px]"/>)}
