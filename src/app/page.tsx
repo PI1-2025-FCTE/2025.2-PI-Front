@@ -49,13 +49,11 @@ export default function Home() {
     }
 
     return(
-        <div>
-            {sideBar ? 
-            (<SideBar onClick={handleClick}/>) 
-            : 
-            (<div className="min-h-screen w-full bg-[#1E1E1E]">
-                <Header onClick={handleClick}/>
-                <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 my-6 lg:my-10 mx-4 lg:mx-10">
+        <div className="min-h-screen w-full bg-[#1E1E1E]">
+            <Header onClick={handleClick}/>
+            <div className="flex">
+                {sideBar && <SideBar onClick={handleClick}/>}
+                <div className="flex-1 flex flex-col lg:flex-row gap-6 lg:gap-10 my-6 lg:my-10 mx-4 lg:mx-10">
                     <div className="flex flex-col gap-6 lg:gap-10 w-full lg:w-auto">
                         <ConnectionStatus onClick={changeConection} evaluate={connection}/>
                         <DisponibilityStatus onClick={changeDisponiblity} evaluate={disponibility}/>
@@ -75,7 +73,7 @@ export default function Home() {
                         (<button onClick={sendInstruction} className="h-10 w-[100px] bg-blue-600 rounded-xl text-white transition hover:scale-110">Enviar</button>) : (<div className="h-10 w-[100px]"/>)}
                     </div>
                 </div>
-            </div>)}
+            </div>
         </div>
     );
 }
