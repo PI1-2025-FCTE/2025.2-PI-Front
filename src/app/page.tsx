@@ -49,12 +49,12 @@ export default function Home() {
     }
 
     return(
-        <div className="min-h-screen w-full bg-[#1E1E1E]">
+        <div className="h-screen w-full bg-[#1E1E1E] flex flex-col overflow-hidden">
             <Header onClick={handleClick}/>
-            <div className="flex">
+            <div className="flex flex-1 min-h-0">
                 {sideBar && <SideBar onClick={handleClick}/>}
-                <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-6 my-4 lg:my-6 mx-4 lg:mx-6">
-                    <div className="flex flex-col gap-4 w-full lg:w-auto">
+                <div className="flex-1 flex flex-col lg:flex-row gap-3 lg:gap-4 p-3 lg:p-4 min-h-0">
+                    <div className="flex flex-col gap-3 w-full lg:w-auto justify-between lg:justify-start">
                         <ConnectionStatus onClick={changeConection} evaluate={connection}/>
                         <DisponibilityStatus onClick={changeDisponiblity} evaluate={disponibility}/>
                         {!connection &&
@@ -66,11 +66,10 @@ export default function Home() {
                             <Button onClick={stopRoute} text={"PARAR TRAJETO"}/>
                         </div>)}
                     </div>
-                    <div className="w-full lg:flex-1 min-h-[350px] lg:min-h-[500px] bg-[#7398B7] rounded-lg flex flex-col justify-center items-center p-4">
-                        <textarea className="w-full max-w-full h-[280px] lg:h-[400px] bg-[#434343] text-white p-4 rounded-lg resize-none" />
-                        <div className="h-4"/>
+                    <div className="flex-1 min-h-0 bg-[#7398B7] rounded-lg flex flex-col justify-center items-center p-3 lg:p-4 gap-3">
+                        <textarea className="w-full flex-1 min-h-0 bg-[#434343] text-white p-3 lg:p-4 rounded-lg resize-none" />
                         {(connection && disponibility) ? 
-                        (<button onClick={sendInstruction} className="h-9 w-[90px] bg-blue-600 rounded-lg text-white text-sm transition hover:scale-110">Enviar</button>) : (<div className="h-9 w-[90px]"/>)}
+                        (<button onClick={sendInstruction} className="h-9 w-[90px] bg-blue-600 rounded-lg text-white text-sm transition hover:scale-110 flex-shrink-0">Enviar</button>) : (<div className="h-9 w-[90px] flex-shrink-0"/>)}
                     </div>
                 </div>
             </div>
