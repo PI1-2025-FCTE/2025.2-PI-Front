@@ -19,21 +19,21 @@ export default function SideBar({onClick, instruction}: SideBarProps) {
     }
     
     return(
-        <div className="min-h-screen w-[280px] sm:w-[320px] lg:w-[360px] bg-[#446784] flex flex-col items-center px-4 shadow-lg">
-            <div className="flex h-[100px] w-full justify-end items-center">
-                <button onClick={onClick}>
-                    <SlArrowLeft className="text-[#D9D9D9] text-[25px] sm:text-[30px] font-bold transition hover:scale-110"/>
+        <div className="h-screen w-[280px] sm:w-[320px] lg:w-[360px] bg-[#446784] flex flex-col items-center px-4 shadow-lg">
+            <div className="flex h-[10vh] min-h-[60px] max-h-[70px] w-full justify-end items-center flex-shrink-0">
+                <button onClick={onClick} className="p-2">
+                    <SlArrowLeft className="text-[#D9D9D9] text-[20px] sm:text-[25px] font-bold transition hover:scale-110"/>
                 </button>
             </div>
             {instruction ? (    
-            <div className="mt-8 h-[355px] w-full overflow-auto scrollbar scrollbar-thumb-[#7398B7] scrollbar-track-[#446784]">
+            <div className="flex-1 min-h-0 w-full overflow-auto scrollbar scrollbar-thumb-[#7398B7] scrollbar-track-[#446784] py-2">
                 {routes.map((value, index) => (
                     <div key={index} className="mb-2">
                         <RouteBox index={value}/>
                     </div>
                 ))}
             </div>) : 
-            (<div className="mt-6 h-[525px] w-full overflow-auto scrollbar scrollbar-thumb-[#7398B7] scrollbar-track-[#446784]">
+            (<div className="flex-1 min-h-0 w-full overflow-auto scrollbar scrollbar-thumb-[#7398B7] scrollbar-track-[#446784] py-2">
                 {routes.map((value, index) => (
                     <div key={index} className="mb-2">
                         <RouteBox index={value}/>
@@ -44,7 +44,7 @@ export default function SideBar({onClick, instruction}: SideBarProps) {
             
         
             {instruction && (
-            <div className="mt-16">
+            <div className="py-4 flex-shrink-0">
                 <Link href={"/"}>
                     <Button text="INSTRUÇÃO"/>
                 </Link>
