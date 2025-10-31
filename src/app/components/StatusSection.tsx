@@ -5,14 +5,14 @@ type StatusSectionProps = {
 
 export function ConnectionStatus({onClick, evaluate}: StatusSectionProps) {
     return(
-        <div onClick={onClick}  className="h-[100px] w-full max-w-[400px] bg-[#7398B7] rounded-xl flex items-center justify-between px-5">
-            <h1 className="text-white font-bold text-lg sm:text-[25px]">CONEXÃO</h1>
+        <div onClick={onClick}  className="h-[70px] w-full max-w-[280px] bg-[#7398B7] rounded-lg flex items-center justify-between px-4 cursor-pointer">
+            <h1 className="text-white font-bold text-base sm:text-lg">CONEXÃO</h1>
             {evaluate ? 
-            (<div className="h-10 w-20 bg-green-500 rounded-full flex items-center pr-1 justify-end flex-shrink-0">
-                <div className="h-8 w-12 bg-white rounded-full"/>
+            (<div className="h-8 w-16 bg-green-500 rounded-full flex items-center pr-0.5 justify-end flex-shrink-0">
+                <div className="h-6 w-10 bg-white rounded-full"/>
             </div>) : 
-            (<div className="h-10 w-20 bg-red-600 rounded-full flex items-center pl-1 flex-shrink-0">
-                <div className="h-8 w-12 bg-white rounded-full"/>
+            (<div className="h-8 w-16 bg-red-600 rounded-full flex items-center pl-0.5 flex-shrink-0">
+                <div className="h-6 w-10 bg-white rounded-full"/>
             </div>)}
         </div>
     );
@@ -20,14 +20,14 @@ export function ConnectionStatus({onClick, evaluate}: StatusSectionProps) {
 
 export function DisponibilityStatus({onClick, evaluate}: StatusSectionProps) {
     return(
-        <div onClick={onClick}  className="h-[100px] w-full max-w-[400px] bg-[#7398B7] rounded-xl flex items-center justify-between px-5">
-            <h1 className="text-white font-bold text-lg sm:text-[25px]">DISPONIBILIDADE</h1>
+        <div onClick={onClick}  className="h-[70px] w-full max-w-[280px] bg-[#7398B7] rounded-lg flex items-center justify-between px-4 cursor-pointer">
+            <h1 className="text-white font-bold text-base sm:text-lg">DISPONIBILIDADE</h1>
             {evaluate ? 
-            (<div className="h-10 w-20 bg-green-500 rounded-full flex items-center pr-1 justify-end flex-shrink-0">
-                <div className="h-8 w-12 bg-white rounded-full"/>
+            (<div className="h-8 w-16 bg-green-500 rounded-full flex items-center pr-0.5 justify-end flex-shrink-0">
+                <div className="h-6 w-10 bg-white rounded-full"/>
             </div>) : 
-            (<div className="h-10 w-20 bg-red-600 rounded-full flex items-center pl-1 flex-shrink-0">
-                <div className="h-8 w-12 bg-white rounded-full"/>
+            (<div className="h-8 w-16 bg-red-600 rounded-full flex items-center pl-0.5 flex-shrink-0">
+                <div className="h-6 w-10 bg-white rounded-full"/>
             </div>)}
         </div>
     );
