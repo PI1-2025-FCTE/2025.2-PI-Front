@@ -22,9 +22,11 @@ export default function Route() {
             <div className="flex flex-1 min-h-0">
                 {sideBar && <SideBar onClick={handleClick} instruction={true}/>}
                 <div className="flex-1 flex flex-col lg:flex-row gap-3 p-3 min-h-0">
-                    <div className="flex-1 min-h-0 bg-[#7398B7] rounded-lg flex flex-col">
-                        <h1 className="py-3 text-white font-bold text-center text-sm sm:text-base flex-shrink-0">DETALHES DA TRAJETÓRIA</h1>
-                        <Details text={lorem}/>
+                    <div className="flex flex-col gap-3 flex-1 min-h-0">
+                        <div className="h-[35vh] min-h-[200px] max-h-[300px] bg-[#7398B7] rounded-lg flex flex-col flex-shrink-0">
+                            <h1 className="py-3 text-white font-bold text-center text-sm sm:text-base flex-shrink-0">DETALHES DA TRAJETÓRIA</h1>
+                            <Details text={lorem}/>
+                        </div>
                     </div>
                     <div className="flex flex-col gap-3 w-full lg:w-auto lg:min-w-[400px] lg:max-w-[500px]">
                         <div className="flex-1 min-h-0 bg-[#7398B7] rounded-lg flex flex-col p-3">
