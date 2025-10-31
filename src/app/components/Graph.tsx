@@ -1,4 +1,4 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Label } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Label, ResponsiveContainer } from 'recharts';
 
 // #region Sample data
 const data = [
@@ -13,13 +13,12 @@ const data = [
 
 export default function Graph() {
   return (
-    <div className="w-full h-full flex items-center justify-center">
-      <LineChart
-        width={380}
-        height={260}
-        data={data}
-        margin={{ top: 5, right: 15, left: -10, bottom: 25 }}
-      >
+    <div className="w-full h-full min-h-[250px] flex items-center justify-center">
+      <ResponsiveContainer width="95%" height="95%">
+        <LineChart
+          data={data}
+          margin={{ top: 5, right: 15, left: -10, bottom: 25 }}
+        >
         <CartesianGrid strokeDasharray="3 3" stroke="#444" />
         <XAxis
           dataKey="velocidade"
@@ -54,6 +53,7 @@ export default function Graph() {
         />
         <Line type="monotone" dataKey="espaco" stroke="red" strokeWidth={2} dot={{ r: 3 }} />
       </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 }
