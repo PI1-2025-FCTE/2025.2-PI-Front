@@ -56,7 +56,7 @@ export default function Home() {
                     <SideBar onClick={handleClick}/>
                 ) : (
                     <div className="flex-1 flex flex-col lg:flex-row gap-3 lg:gap-6 p-3 lg:p-6 min-h-0 items-center justify-center">
-                        <div className="flex flex-col gap-3 w-full sm:w-auto">
+                        <div className="flex flex-col gap-3 w-full sm:w-auto lg:self-start lg:mt-12">
                             <ConnectionStatus onClick={changeConection} evaluate={connection}/>
                             <DisponibilityStatus onClick={changeDisponiblity} evaluate={disponibility}/>
                             {!connection &&
