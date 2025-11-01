@@ -56,7 +56,7 @@ export default function Home() {
                     <SideBar onClick={handleClick}/>
                 ) : (
                     <div className="flex-1 flex flex-col lg:flex-row gap-3 lg:gap-4 p-3 lg:p-4 min-h-0 items-center justify-center">
-                        <div className="flex flex-col gap-3 w-full lg:w-auto justify-between lg:justify-start">
+                        <div className="flex flex-col gap-3 w-full sm:w-auto justify-between lg:justify-start">
                             <ConnectionStatus onClick={changeConection} evaluate={connection}/>
                             <DisponibilityStatus onClick={changeDisponiblity} evaluate={disponibility}/>
                             {!connection &&
@@ -68,7 +68,7 @@ export default function Home() {
                                 <Button onClick={stopRoute} text={"PARAR TRAJETO"}/>
                             </div>)}
                         </div>
-                        <div className="w-[500px] h-[500px] bg-[#7398B7] rounded-lg flex flex-col justify-center items-center p-3 lg:p-4 gap-3 flex-shrink-0">
+                        <div className="w-full sm:w-[400px] md:w-[450px] lg:w-[500px] h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px] bg-[#7398B7] rounded-lg flex flex-col justify-center items-center p-3 lg:p-4 gap-3 flex-shrink-0">
                             <textarea className="w-full flex-1 min-h-0 bg-[#434343] text-white p-3 lg:p-4 rounded-lg resize-none" />
                             {(connection && disponibility) ? 
                             (<button onClick={sendInstruction} className="h-9 w-[90px] bg-blue-600 rounded-lg text-white text-sm transition hover:scale-110 flex-shrink-0">Enviar</button>) : (<div className="h-9 w-[90px] flex-shrink-0"/>)}
