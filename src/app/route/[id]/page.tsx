@@ -21,20 +21,20 @@ export default function Route() {
             <Header onClick={handleClick}/>
             <div className="flex flex-1 min-h-0">
                 {sideBar && <SideBar onClick={handleClick} instruction={true}/>}
-                <div className="flex-1 flex flex-col items-center min-h-0 pt-5">
+                <div className="flex-1 flex flex-col items-center justify-center min-h-0 pt-5">
                     <div className="flex gap-3">
-                        <div className="w-[400px] h-[500px] bg-[#7398B7] rounded-lg flex flex-col flex-shrink-0">
+                        <div className="w-[400px] h-[400px] bg-[#7398B7] rounded-lg flex flex-col flex-shrink-0">
                             <h1 className="py-3 text-white font-bold text-center text-sm flex-shrink-0">DETALHES DA TRAJETÓRIA</h1>
                             <Details text={lorem}/>
                         </div>
-                        <div className="w-[400px] h-[500px] bg-[#7398B7] rounded-lg flex flex-col p-3 flex-shrink-0">
+                        <div className="w-[400px] h-[400px] bg-[#7398B7] rounded-lg flex flex-col p-3 flex-shrink-0">
                             <h1 className="text-center text-white font-bold text-sm mb-2 flex-shrink-0">GRÁFICO DE DESEMPENHO</h1>
                             <div className="flex-1 min-h-0 flex items-center justify-center">
                                 <Graph/>
                             </div>
                         </div>
                     </div>
-                    <div className="mt-3 w-[803px] flex-shrink-0">
+                    <div className="mt-3 flex justify-center w-full flex-shrink-0">
                         <Button text="BAIXAR RELATÓRIO"/>
                     </div>
                 </div>
