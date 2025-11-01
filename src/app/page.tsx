@@ -52,26 +52,29 @@ export default function Home() {
         <div className="h-screen w-full bg-[#1E1E1E] flex flex-col overflow-hidden">
             <Header onClick={handleClick}/>
             <div className="flex flex-1 min-h-0">
-                {sideBar && <SideBar onClick={handleClick}/>}
-                <div className="flex-1 flex flex-col lg:flex-row gap-3 lg:gap-4 p-3 lg:p-4 min-h-0">
-                    <div className="flex flex-col gap-3 w-full lg:w-auto justify-between lg:justify-start">
-                        <ConnectionStatus onClick={changeConection} evaluate={connection}/>
-                        <DisponibilityStatus onClick={changeDisponiblity} evaluate={disponibility}/>
-                        {!connection &&
-                        (<div className="lg:mt-auto">
-                            <Button onClick={connect} text={"CONECTAR"}/>
-                        </div>)}
-                        {connection && !disponibility && (
-                        <div className="lg:mt-auto">
-                            <Button onClick={stopRoute} text={"PARAR TRAJETO"}/>
-                        </div>)}
+                {sideBar ? (
+                    <SideBar onClick={handleClick}/>
+                ) : (
+                    <div className="flex-1 flex flex-col lg:flex-row gap-3 lg:gap-4 p-3 lg:p-4 min-h-0">
+                        <div className="flex flex-col gap-3 w-full lg:w-auto justify-between lg:justify-start">
+                            <ConnectionStatus onClick={changeConection} evaluate={connection}/>
+                            <DisponibilityStatus onClick={changeDisponiblity} evaluate={disponibility}/>
+                            {!connection &&
+                            (<div className="lg:mt-auto">
+                                <Button onClick={connect} text={"CONECTAR"}/>
+                            </div>)}
+                            {connection && !disponibility && (
+                            <div className="lg:mt-auto">
+                                <Button onClick={stopRoute} text={"PARAR TRAJETO"}/>
+                            </div>)}
+                        </div>
+                        <div className="flex-1 min-h-0 bg-[#7398B7] rounded-lg flex flex-col justify-center items-center p-3 lg:p-4 gap-3">
+                            <textarea className="w-full flex-1 min-h-0 bg-[#434343] text-white p-3 lg:p-4 rounded-lg resize-none" />
+                            {(connection && disponibility) ? 
+                            (<button onClick={sendInstruction} className="h-9 w-[90px] bg-blue-600 rounded-lg text-white text-sm transition hover:scale-110 flex-shrink-0">Enviar</button>) : (<div className="h-9 w-[90px] flex-shrink-0"/>)}
+                        </div>
                     </div>
-                    <div className="flex-1 min-h-0 bg-[#7398B7] rounded-lg flex flex-col justify-center items-center p-3 lg:p-4 gap-3">
-                        <textarea className="w-full flex-1 min-h-0 bg-[#434343] text-white p-3 lg:p-4 rounded-lg resize-none" />
-                        {(connection && disponibility) ? 
-                        (<button onClick={sendInstruction} className="h-9 w-[90px] bg-blue-600 rounded-lg text-white text-sm transition hover:scale-110 flex-shrink-0">Enviar</button>) : (<div className="h-9 w-[90px] flex-shrink-0"/>)}
-                    </div>
-                </div>
+                )}
             </div>
         </div>
     );
