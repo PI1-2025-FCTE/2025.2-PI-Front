@@ -4,8 +4,8 @@ type DetailsProps = {
 
 export default function Details({text}: DetailsProps) {
     return(
-        <div className="flex-1 min-h-0 bg-[#434343] rounded-lg mx-3 mb-3 overflow-y-auto scrollbar scrollbar-thumb-[#7398B7] scrollbar-track-[#434343]">
-            <p className="text-white p-3 sm:p-4 text-xs sm:text-sm leading-relaxed">{text}</p>
+        <div className="mt-2.5 bg-[#434343] rounded-xl h-[195px] w-[280px] lg:h-[480px] lg:w-[350px] xl:w-[610px]  2xl:h-[570px] 2xl:w-[880px] overflow-y-auto">
+            <p className="text-white p-5 text-justify">{text}</p>
         </div>
     );
 }

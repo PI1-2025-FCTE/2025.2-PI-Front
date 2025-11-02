@@ -19,37 +19,41 @@ export default function SideBar({onClick, instruction}: SideBarProps) {
     }
     
     return(
-        <div className="h-screen w-screen bg-[#446784] flex flex-col items-center px-4 shadow-lg pb-[60px]">
-            <div className="flex h-[10vh] min-h-[60px] max-h-[70px] w-full justify-end items-center flex-shrink-0">
-                <button onClick={onClick} className="p-2">
-                    <SlArrowLeft className="text-[#D9D9D9] text-[20px] sm:text-[25px] font-bold transition hover:scale-110"/>
-                </button>
-            </div>
-            {instruction ? (    
-            <div className="flex-1 min-h-0 w-full overflow-auto scrollbar scrollbar-thumb-[#7398B7] scrollbar-track-[#446784] py-2">
-                {routes.map((value, index) => (
-                    <div key={index} className="mb-2">
-                        <RouteBox index={value}/>
-                    </div>
-                ))}
-            </div>) : 
-            (<div className="flex-1 min-h-0 w-full overflow-auto scrollbar scrollbar-thumb-[#7398B7] scrollbar-track-[#446784] py-2">
-                {routes.map((value, index) => (
-                    <div key={index} className="mb-2">
-                        <RouteBox index={value}/>
-                    </div>
-                ))}
-            </div>)}
-        
+        <div className="min-h-screen w-full bg-[#7398B7]">
+            <div className="min-h-screen
+            w-full
+            md:w-[450px] bg-[#446784] flex flex-col items-center ">
+                <div className="flex h-[100px] w-full md:w-[400px] justify-end pr-2 md:pr-0">
+                    <button>
+                        <SlArrowLeft onClick={onClick} className=" text-[#D9D9D9] text-[35px] font-bold transition hover:scale-110"/>
+                    </button>
+                </div>
+                {instruction ? (    
+                <div className="mt-10 h-[350px] [@media(min-width:380px)]:h-[440px] w-full overflow-auto bg-[#446784] rounded-xl">
+                    {routes.map((value, index) => (
+                        <div key={index} className="px-2 md:px-0 md:pl-5 py-1">
+                            <RouteBox index={value}/>
+                        </div>
+                    ))}
+                </div>) : 
+                (<div className="mt-10 h-[440px] [@media(min-width:380px)]:h-[530px] md:h-[525px] w-full md:w-[440px] overflow-auto bg-[#446784] rounded-xl">
+                    {routes.map((value, index) => (
+                        <div key={index} className="px-2 md:px-0 md:pl-5 py-1">
+                            <RouteBox index={value}/>
+                        </div>
+                    ))}
+                </div>)}
             
-        
-            {instruction && (
-            <div className="pt-4 flex-shrink-0">
-                <Link href={"/"}>
-                    <Button text="INSTRUÇÃO"/>
-                </Link>
+                
+            
+                {instruction && (
+                <div className="mt-16">
+                    <Link href={"/"} className="">
+                        <Button text="INSTRUÇÃO"/>
+                    </Link>
+                </div>
+                )}
             </div>
-            )}
         </div>
     );
 }

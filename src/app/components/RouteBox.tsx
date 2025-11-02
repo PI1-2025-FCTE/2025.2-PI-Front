@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 
 type RouteBoxProps = {
@@ -7,8 +8,8 @@ type RouteBoxProps = {
 export function RouteBox({index}: RouteBoxProps) {
     return(
         <Link href={`/route/${index}`}>
-            <button className="h-[50px] sm:h-[55px] w-full bg-[#7398B7] text-white font-bold flex justify-start items-center pl-4 rounded-lg transition hover:scale-[1.02] hover:bg-[#8AA8C7] text-sm">
-                Rota {index}
+            <button className="h-[80px] w-full md:w-[400px] bg-[#7398B7] text-white font-bold flex justify-start items-center pl-10 rounded-xl transition hover:scale-[1.02]">
+                PERCURSO {index}
             </button>
         </Link>
     );
