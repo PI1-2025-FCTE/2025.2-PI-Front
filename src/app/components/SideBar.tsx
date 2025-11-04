@@ -47,7 +47,7 @@ export default function SideBar({onClick, instruction}: SideBarProps) {
                 
             
                 {instruction && (
-                <div className="mt-16">
+                <div className="mt-10">
                     <Link href={"/"} className="">
                         <Button text="INSTRUÇÃO"/>
                     </Link>
