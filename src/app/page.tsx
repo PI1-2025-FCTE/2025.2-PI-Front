@@ -22,10 +22,32 @@ export default function Home() {
     }
 
     const sendInstruction = async () => {
-        setDisponibility(false);
-        await new Promise(resolve => setTimeout(resolve, 2500));
+    if (!connection || !disponibility) return;
+
+    setDisponibility(false);
+
+    // Capturando o valor do textarea
+    const comando = (document.querySelector('textarea') as HTMLTextAreaElement).value;
+
+    try {
+        const response = await fetch("http://localhost:8000/trajetos", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ comandosEnviados: comando })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro ao enviar: ${response.statusText}`);
+        }
+
+    } catch (err) {
+        console.error(err);
+    } finally {
         setDisponibility(true);
     }
+}
 
     const stopRoute = () => {
         setDisponibility(true);

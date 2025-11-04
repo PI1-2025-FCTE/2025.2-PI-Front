@@ -2,7 +2,7 @@
 import Link from "next/link";
 
 type RouteBoxProps = {
-    index: string;
+    index: number;
 }
 
 export function RouteBox({index}: RouteBoxProps) {
