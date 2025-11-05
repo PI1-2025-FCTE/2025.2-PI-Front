@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import SideBar from "@/app/components/SideBar";
 import Header from "@/app/components/Header";
 import {ConnectionStatus, DisponibilityStatus} from "@/app/components/StatusSection";
+import {ConnectingModal} from "@/app/components/ConnectingModal";
 import Button from "@/app/components/Button";
 
+const DEFAULT_IP = "127.0.0.1";
+const DEFAULT_PORTA = "8080";
 
 export default function Home() {
     const [sideBar, setSideBar] = useState(false);
@@ -69,7 +72,90 @@ export default function Home() {
             setDisponibility(!disponibility);
         }
     }
+    const [ip, setIp] = useState(DEFAULT_IP);
+    const [porta, setPorta] = useState(DEFAULT_PORTA);
+    const [conectado, setConectado] = useState(false); // Prop 'evaluate'
+    const [isConnecting, setIsConnecting] = useState(false); // Controla o modal
+    
+    const ws = useRef<WebSocket | null>(null);
 
+    useEffect(() => {
+        return () => {
+            if (ws.current) {
+                console.log("Componente desmontado, fechando WebSocket.");
+                ws.current.close(1000, "Componente desmontado");
+            }
+        };
+    }, []); 
+
+    const conectar = () => {
+        if (isConnecting || conectado) return;
+
+        console.log(`Tentando conectar em: ws://${ip}:${porta}`);
+        setIsConnecting(true); 
+
+        try {
+            const socket = new WebSocket(`ws://${ip}:${porta}`);
+            ws.current = socket; 
+
+            
+
+          
+            socket.onopen = () => {
+                console.log("WebSocket Conectado!");
+                setIsConnecting(false); 
+                setConectado(true);  
+            };
+
+           
+            socket.onclose = (event) => {
+                console.log("WebSocket Fechado.", event.code, event.reason);
+                setIsConnecting(false); 
+                setConectado(false); 
+                ws.current = null;  
+            };
+
+            
+            socket.onerror = (error) => {
+                console.error("Erro no WebSocket:", error);
+            };
+
+            
+            socket.onmessage = (event) => {
+                console.log("Mensagem recebida do servidor:", event.data);
+            };
+
+        } catch (error) {
+           
+            console.error("Erro ao criar WebSocket:", error);
+            setIsConnecting(false);
+        }
+    };
+
+    
+    const desconectar = () => {
+        if (ws.current) {
+            console.log("Desconectando manualmente...");
+            ws.current.close(1000, "Usuário desconectou");
+        }
+    };
+
+    const handleToggleConexao = () => {
+        if (conectado) {
+            desconectar();
+        } else {
+            conectar();
+        }
+    };
+
+    const handleCancelConnection = () => {
+        console.log("Tentativa de conexão cancelada pelo usuário.");
+        if (ws.current) {
+            ws.current.close(1000, "Conexão cancelada pelo usuário");
+        } else {
+            setIsConnecting(false);
+        }
+    };
     return(
         <div>
             {sideBar ? 
@@ -77,9 +163,21 @@ export default function Home() {
             : 
             (<div className="min-h-screen w-full bg-[#1E1E1E] ">
                 <Header onClick={handleClick}/>
+          <ConnectingModal 
+                isOpen={isConnecting}
+                onCancel={handleCancelConnection}
+            />
                 <div className="flex my-10 mx-10 h-full flex-col-reverse lg:flex-row justify-center items-center lg:items-stretch lg:justify-normal ">
                     <div className="flex flex-col justify-center items-center mt-3 gap-3 lg:justify-normal lg:mt-0 lg:gap-10">
-                            <ConnectionStatus onClick={changeConection} evaluate={connection}/>
+                            <ConnectionStatus 
+              evaluate={conectado}
+                isConnecting={isConnecting}
+                onClickToggle={handleToggleConexao}
+                ip={ip}
+                porta={porta}
+                onIpChange={setIp}
+                onPortaChange={setPorta} 
+              />
                             <DisponibilityStatus onClick={changeDisponiblity} evaluate={disponibility}/>
                         {!connection &&
                         (<div className="lg:mt-[50px] 2xl:mt-[220px]">
