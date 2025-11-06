@@ -1,4 +1,6 @@
 import "./globals.css";
+import { DevicesProvider } from "./context/DeviceContext";
+import ToastProvider from "./components/ToastProvider";
 
 export const metadata = {
   title: "Conector do Carrinho",
@@ -12,7 +14,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body>
+        <DevicesProvider>
+          <ToastProvider>
+          {children}
+          </ToastProvider>
+        </DevicesProvider>
+      </body>
     </html>
   );
 }
