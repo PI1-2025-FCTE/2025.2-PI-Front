@@ -1,212 +1,211 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import SideBar from "@/app/components/SideBar";
 import Header from "@/app/components/Header";
-import {ConnectionStatus, DisponibilityStatus} from "@/app/components/StatusSection";
-import {ConnectingModal} from "@/app/components/ConnectingModal";
-import Button from "@/app/components/Button";
+import { FiRefreshCw } from "react-icons/fi";
 
-const DEFAULT_IP = "127.0.0.1";
-const DEFAULT_PORTA = "8080";
-
-export default function Home() {
-    const [sideBar, setSideBar] = useState(false);
-
-    const handleClick = () => {
-        setSideBar(!sideBar);
-    }
-
-    const [connection, setConnection] = useState(false);
-
-    const connect = () => {
-        setConnection(true);
-        setDisponibility(true);
-    }
-
-    const sendInstruction = async () => {
-    if (!connection || !disponibility) return;
-
-    setDisponibility(false);
-
-    // Capturando o valor do textarea
-    const comando = (document.querySelector('textarea') as HTMLTextAreaElement).value;
-
-    try {
-        const response = await fetch("http://localhost:8000/trajetos", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ comandosEnviados: comando })
-        });
-
-        if (!response.ok) {
-            throw new Error(`Erro ao enviar: ${response.statusText}`);
-        }
-
-    } catch (err) {
-        console.error(err);
-    } finally {
-        setDisponibility(true);
-    }
+interface Device {
+  id: string;
+  online: boolean;
+  battery: number;
+  timestamp: string;
 }
 
-    const stopRoute = () => {
-        setDisponibility(true);
-    } 
+export default function Home() {
+  const [sideBar, setSideBar] = useState(false);
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false); 
+  const [commandText, setCommandText] = useState("");
 
-    const changeConection = () => {
-        if(connection) {
-            setConnection(false);
-            setDisponibility(false);
-        } else {
-            setConnection(true);
-        };
+  const handleClick = () => setSideBar(!sideBar);
+
+  const fetchDevices = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/devices");
+      if (!response.ok) throw new Error("Erro ao buscar dispositivos");
+
+      const data = await response.json();
+      const devicesArray: Device[] = Object.entries(data).map(
+        ([id, device]: [string, any]) => ({
+          id,
+          ...device,
+        })
+      );
+
+      setDevices(devicesArray);
+    } catch (err) {
+      console.error("Erro ao buscar dispositivos:", err);
     }
+  };
 
-    const [disponibility, setDisponibility] = useState(false);
-    
-    const changeDisponiblity = () => {
-        if(connection) {
-            setDisponibility(!disponibility);
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchDevices();
+    setIsRefreshing(false);
+  };
+
+  useEffect(() => {
+    fetchDevices();
+  }, []);
+
+  const sendInstruction = async () => {
+    if (!selectedDevice || !commandText.trim()) return;
+
+    const payload = {
+      comandosEnviados: commandText.trim(),
+    };
+
+    try {
+      const response = await fetch(
+        `http://localhost:8000/trajetos/${selectedDevice.id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
         }
+      );
+
+      if (!response.ok) {
+        throw new Error("Falha ao enviar comando");
+      }
+
+      const data = await response.json();
+      console.log("Comando enviado com sucesso:", data);
+
+      // Limpa textarea
+      setCommandText("");
+    } catch (err) {
+      console.error("Erro ao enviar comando:", err);
     }
-    const [ip, setIp] = useState(DEFAULT_IP);
-    const [porta, setPorta] = useState(DEFAULT_PORTA);
-    const [conectado, setConectado] = useState(false); // Prop 'evaluate'
-    const [isConnecting, setIsConnecting] = useState(false); // Controla o modal
-    
-    const ws = useRef<WebSocket | null>(null);
+  };
 
-    useEffect(() => {
-        return () => {
-            if (ws.current) {
-                console.log("Componente desmontado, fechando WebSocket.");
-                ws.current.close(1000, "Componente desmontado");
-            }
-        };
-    }, []); 
+  return (
+    <div>
+      {sideBar ? (
+        <SideBar onClick={handleClick} />
+      ) : (
+        <div className="min-h-screen w-full bg-[#1E1E1E]">
+          <Header onClick={handleClick} />
 
-    const conectar = () => {
-        if (isConnecting || conectado) return;
-
-        console.log(`Tentando conectar em: ws://${ip}:${porta}`);
-        setIsConnecting(true); 
-
-        try {
-            const socket = new WebSocket(`ws://${ip}:${porta}`);
-            ws.current = socket; 
-
-            
-
-          
-            socket.onopen = () => {
-                console.log("WebSocket Conectado!");
-                setIsConnecting(false); 
-                setConectado(true);  
-            };
-
-           
-            socket.onclose = (event) => {
-                console.log("WebSocket Fechado.", event.code, event.reason);
-                setIsConnecting(false); 
-                setConectado(false); 
-                ws.current = null;  
-            };
-
-            
-            socket.onerror = (error) => {
-                console.error("Erro no WebSocket:", error);
-            };
-
-            
-            socket.onmessage = (event) => {
-                console.log("Mensagem recebida do servidor:", event.data);
-            };
-
-        } catch (error) {
-           
-            console.error("Erro ao criar WebSocket:", error);
-            setIsConnecting(false);
-        }
-    };
-
-    
-    const desconectar = () => {
-        if (ws.current) {
-            console.log("Desconectando manualmente...");
-            ws.current.close(1000, "Usuário desconectou");
-        }
-    };
-
-    const handleToggleConexao = () => {
-        if (conectado) {
-            desconectar();
-        } else {
-            conectar();
-        }
-    };
-
-    const handleCancelConnection = () => {
-        console.log("Tentativa de conexão cancelada pelo usuário.");
-        if (ws.current) {
-            ws.current.close(1000, "Conexão cancelada pelo usuário");
-        } else {
-            setIsConnecting(false);
-        }
-    };
-    return(
-        <div>
-            {sideBar ? 
-            (<SideBar onClick={handleClick}/>) 
-            : 
-            (<div className="min-h-screen w-full bg-[#1E1E1E] ">
-                <Header onClick={handleClick}/>
-          <ConnectingModal 
-                isOpen={isConnecting}
-                onCancel={handleCancelConnection}
-            />
-                <div className="flex my-10 mx-10 h-full flex-col-reverse lg:flex-row justify-center items-center lg:items-stretch lg:justify-normal ">
-                    <div className="flex flex-col justify-center items-center mt-3 gap-3 lg:justify-normal lg:mt-0 lg:gap-10">
-                            <ConnectionStatus 
-              evaluate={conectado}
-                isConnecting={isConnecting}
-                onClickToggle={handleToggleConexao}
-                ip={ip}
-                porta={porta}
-                onIpChange={setIp}
-                onPortaChange={setPorta} 
-              />
-                            <DisponibilityStatus onClick={changeDisponiblity} evaluate={disponibility}/>
-                        {!connection &&
-                        (<div className="lg:mt-[50px] 2xl:mt-[220px]">
-                            <Button onClick={connect} text={"CONECTAR"}/>
-                        </div>)}
-                        {connection && !disponibility && (
-                        <div className="lg:mt-[50px] 2xl:mt-[220px]">
-                            <Button onClick={stopRoute} text={"PARAR TRAJETO"}/>
-                        </div>)}
-                    </div>
-                    <div className="
-                        h-[300px] w-[300px] pb-3
-                        lg:h-[440px] lg:w-[600px] lg:ml-14 lg:pb-0
-                        xl:h-[440px] xl:w-[700px] 
-                        2xl:h-[600px] 2xl:w-[1000px] 
-                        bg-[#7398B7] rounded-xl flex flex-col justify-center items-center">
-                        <textarea className="mt-5 
-                        h-[280px] w-[280px]
-                        lg:h-[300px] lg:w-[465px]
-
-                        xl:h-[330px] xl:w-[680px] 
-                        2xl:h-[460px] 2xl:w-[900px] p-5
-                        bg-[#434343] text-white rounded-xl" />
-                        <div className="h-5"/>
-                        {(connection && disponibility) ? 
-                        (<button onClick={sendInstruction} className="h-10 w-[100px] bg-blue-600 rounded-xl text-white transition hover:scale-110">Enviar</button>) : (<div className="h-10 w-[100px]"/>)}
-                    </div>
+          <div className="flex flex-col my-10 mx-10 gap-5">
+            <div className="flex flex-col lg:flex-row gap-5">
+              <div className="flex flex-col gap-3 w-full lg:w-2/5 bg-[#1E1E1E] p-4 rounded-xl max-h-[600px] overflow-y-auto">
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="text-white text-xl">
+                    Dispositivos Registrados
+                  </h2>
+                  <button
+                    onClick={handleRefresh}
+                    className="px-2 py-1 bg-[#7398B7] rounded-lg flex items-center justify-center transition"
+                  >
+                    <FiRefreshCw
+                      size={24}
+                      color="white"
+                      className={isRefreshing ? "animate-spin" : ""}
+                    />
+                  </button>
                 </div>
-            </div>)}
+
+                {devices.length === 0 ? (
+                  <div className="text-center text-gray-300 p-5 bg-gray-800 rounded-lg">
+                    Nenhum dispositivo cadastrado
+                  </div>
+                ) : (
+                  devices
+                    .sort((a, b) => Number(b.online) - Number(a.online))
+                    .map((device) => {
+                      const isSelected = selectedDevice?.id === device.id;
+
+                      return (
+                        <div
+                          key={device.id}
+                          className={`flex justify-between items-center p-3 rounded-lg transition cursor-pointer
+                ${
+                  device.online
+                    ? "bg-green-600"
+                    : "bg-gray-700 opacity-60 cursor-default"
+                }`}
+                          onClick={() => {
+                            if (!device.online) return;
+                            setSelectedDevice(isSelected ? null : device);
+                          }}
+                        >
+                          <div className="flex flex-col text-white text-sm">
+                            <span>{device.id}</span>
+                            <span>
+                              Status:{" "}
+                              <strong>
+                                {device.online ? "Online" : "Offline"}
+                              </strong>
+                            </span>
+                            <span>Bateria: {device.battery}%</span>
+                            <span>
+                              Última atualização:{" "}
+                              {new Date(device.timestamp).toLocaleString(
+                                "pt-BR",
+                                {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  second: "2-digit",
+                                }
+                              )}
+                            </span>
+                          </div>
+
+                          {device.online ? (
+                            <span
+                              className={`px-3 py-1 rounded-lg font-bold transition
+                    ${isSelected ? "bg-green-800" : "bg-blue-600"}`}
+                            >
+                              {isSelected ? "Selecionado" : "Selecionar"}
+                            </span>
+                          ) : (
+                            <span className="text-gray-300 italic text-sm">
+                              Offline
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })
+                )}
+              </div>
+
+              <div className="w-full lg:w-3/5 bg-[#7398B7] rounded-xl flex flex-col justify-center items-center p-4">
+                <textarea
+                  className="h-64 w-full lg:h-72 lg:w-full 2xl:h-96 2xl:w-full p-5 bg-[#434343] text-white rounded-xl"
+                  placeholder={
+                    selectedDevice
+                      ? `Enviar instrução para ${selectedDevice.id}...`
+                      : "Selecione um dispositivo para enviar instrução"
+                  }
+                  value={commandText}
+                  onChange={(e) => setCommandText(e.target.value)}
+                />
+                <div className="h-5" />
+                <button
+                  onClick={sendInstruction}
+                  disabled={!selectedDevice || !selectedDevice.online || !commandText.trim()}
+                  className={`h-10 w-32 rounded-xl text-white transition
+        ${
+          selectedDevice && selectedDevice.online
+            ? "bg-blue-600 hover:scale-110 cursor-pointer"
+            : "bg-gray-600 cursor-not-allowed"
+        }`}
+                >
+                  Enviar
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );
 }
