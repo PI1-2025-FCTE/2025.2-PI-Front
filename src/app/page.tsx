@@ -4,11 +4,13 @@ import { useState, useEffect } from "react";
 import SideBar from "@/app/components/SideBar";
 import Header from "@/app/components/Header";
 import { FiRefreshCw } from "react-icons/fi";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Device {
   id: string;
   online: boolean;
-  battery: number;
+  battery: number | null;
   timestamp: string;
 }
 
@@ -16,7 +18,7 @@ export default function Home() {
   const [sideBar, setSideBar] = useState(false);
   const [devices, setDevices] = useState<Device[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false); 
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [commandText, setCommandText] = useState("");
 
   const handleClick = () => setSideBar(!sideBar);
@@ -35,8 +37,16 @@ export default function Home() {
       );
 
       setDevices(devicesArray);
-    } catch (err) {
+
+      if (selectedDevice) {
+        const stillOnline = devicesArray.find(
+          (d) => d.id === selectedDevice.id && d.online
+        );
+        if (!stillOnline) setSelectedDevice(null);
+      }
+    } catch (err: any) {
       console.error("Erro ao buscar dispositivos:", err);
+      toast.error(`Erro ao buscar dispositivos: ${err.message || err}`);
     }
   };
 
@@ -46,45 +56,50 @@ export default function Home() {
     setIsRefreshing(false);
   };
 
-  useEffect(() => {
-    fetchDevices();
-  }, []);
-
   const sendInstruction = async () => {
     if (!selectedDevice || !commandText.trim()) return;
 
-    const payload = {
-      comandosEnviados: commandText.trim(),
-    };
+    const payload = { comandosEnviados: commandText.trim() };
 
     try {
       const response = await fetch(
         `http://localhost:8000/trajetos/${selectedDevice.id}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         }
       );
 
       if (!response.ok) {
-        throw new Error("Falha ao enviar comando");
+        const data = await response.json();
+        toast.error(`Erro: ${data.detail || "Falha ao enviar comando"}`);
+        return;
       }
 
       const data = await response.json();
-      console.log("Comando enviado com sucesso:", data);
-
-      // Limpa textarea
+      toast.success(`Comando enviado com sucesso para ${selectedDevice.id}`);
       setCommandText("");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Erro ao enviar comando:", err);
+      toast.error(`Erro ao enviar comando: ${err.message || err}`);
     }
   };
 
+  useEffect(() => {
+    fetchDevices();
+
+    // Polling a cada 5 segundos
+    const interval = setInterval(() => {
+      fetchDevices();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div>
+      <ToastContainer position="top-right" autoClose={5000} />
       {sideBar ? (
         <SideBar onClick={handleClick} />
       ) : (
@@ -124,11 +139,11 @@ export default function Home() {
                         <div
                           key={device.id}
                           className={`flex justify-between items-center p-3 rounded-lg transition cursor-pointer
-                ${
-                  device.online
-                    ? "bg-green-600"
-                    : "bg-gray-700 opacity-60 cursor-default"
-                }`}
+                          ${
+                            device.online
+                              ? "bg-green-600"
+                              : "bg-gray-700 opacity-60 cursor-default"
+                          }`}
                           onClick={() => {
                             if (!device.online) return;
                             setSelectedDevice(isSelected ? null : device);
@@ -142,7 +157,7 @@ export default function Home() {
                                 {device.online ? "Online" : "Offline"}
                               </strong>
                             </span>
-                            <span>Bateria: {device.battery}%</span>
+                            <span>Bateria: {device.battery ?? "N/A"}%</span>
                             <span>
                               Última atualização:{" "}
                               {new Date(device.timestamp).toLocaleString(
@@ -161,8 +176,14 @@ export default function Home() {
 
                           {device.online ? (
                             <span
-                              className={`px-3 py-1 rounded-lg font-bold transition
-                    ${isSelected ? "bg-green-800" : "bg-blue-600"}`}
+                              className={`px-3 py-1 rounded-lg font-bold transition-colors duration-200
+  ${
+    isSelected
+      ? "bg-gray-200 text-black"
+      : device.online
+      ? "bg-gray-800 text-white hover:bg-gray-700"
+      : "bg-gray-600 text-gray-300 cursor-not-allowed"
+  }`}
                             >
                               {isSelected ? "Selecionado" : "Selecionar"}
                             </span>
@@ -191,13 +212,17 @@ export default function Home() {
                 <div className="h-5" />
                 <button
                   onClick={sendInstruction}
-                  disabled={!selectedDevice || !selectedDevice.online || !commandText.trim()}
+                  disabled={
+                    !selectedDevice ||
+                    !selectedDevice.online ||
+                    !commandText.trim()
+                  }
                   className={`h-10 w-32 rounded-xl text-white transition
-        ${
-          selectedDevice && selectedDevice.online
-            ? "bg-blue-600 hover:scale-110 cursor-pointer"
-            : "bg-gray-600 cursor-not-allowed"
-        }`}
+                  ${
+                    selectedDevice && selectedDevice.online
+                      ? "bg-blue-600 hover:scale-110 cursor-pointer"
+                      : "bg-gray-600 cursor-not-allowed"
+                  }`}
                 >
                   Enviar
                 </button>
