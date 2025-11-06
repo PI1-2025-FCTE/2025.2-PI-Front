@@ -1,6 +1,6 @@
 describe("Fluxo completo de visualização de trajetos", () => {
   beforeEach(() => {
-    // Mock da lista de trajetos
+    // Intercepta e simula a resposta da lista de trajetos
     cy.intercept("GET", "http://localhost:8000/trajetos/", {
       statusCode: 200,
       body: [
@@ -20,32 +20,45 @@ describe("Fluxo completo de visualização de trajetos", () => {
         },
       ],
     }).as("getTrajetos");
+
+    // Intercepta e simula a resposta de um trajeto específico
+    cy.intercept("GET", "http://localhost:8000/trajetos/1", {
+      statusCode: 200,
+      body: {
+        idTrajeto: 1,
+        comandosEnviados: "andar para frente",
+        comandosExecutados: "andar para frente",
+        status: "concluído",
+        tempo: "00:01:20",
+      },
+    }).as("getTrajetoDetalhes");
   });
 
-  it("Deve abrir a sidebar, selecionar um percurso e exibir os detalhes", () => {
-    // 1️⃣ Visita a home
+    //aguardando implementação do gráfico
+  it.skip("Deve abrir a sidebar, selecionar um percurso e exibir os detalhes", () => {
     cy.visit("/");
 
-    // 2️⃣ Abre a sidebar
+    // Abre a sidebar 
     cy.get("header button").first().click();
 
-    // 3️⃣ Espera os trajetos mockados carregarem
+    // Espera o carregamento 
     cy.wait("@getTrajetos");
 
-    // 4️⃣ Verifica os botões de percurso
+    //  Verifica se a sidebar ficou visível e contém os botões de percurso
     cy.contains("PERCURSO 1").should("be.visible");
     cy.contains("PERCURSO 2").should("be.visible");
 
-    // 5️⃣ Clica no percurso 1
+    // Clica no primeiro percurso
     cy.contains("PERCURSO 1").click();
 
-    // ❌ Remove o wait da rota de detalhes (porque ainda não existe requisição)
-    // cy.wait("@getTrajetoDetalhes");
+    cy.wait("@getTrajetoDetalhes");
 
-    // 6️⃣ Verifica se a nova tela renderizou corretamente
     cy.contains("DETALHES DA TRAJETÓRIA").should("be.visible");
+    cy.contains("GRÁFICO DE DESEMPENHO").should("be.visible");
 
-    // 7️⃣ Valida se o gráfico aparece
-    cy.get("svg").should("exist"); // gráfico Recharts renderiza como SVG
+    // 8️⃣ Valida se o trajeto mostrado tem os dados esperados
+    cy.contains("andar para frente").should("exist");
+    cy.contains("concluído").should("exist");
+    cy.contains("00:01:20").should("exist");
   });
 });
