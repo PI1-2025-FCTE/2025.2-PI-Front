@@ -5,7 +5,7 @@ import axios from "axios";
 import SideBar from "@/app/components/SideBar";
 import Header from "@/app/components/Header";
 import Details from "@/app/components/Details";
-import Graph from "@/app/components/Graph";
+import Map from "@/app/components/Map";
 import DownloadButton from "@/app/components/DownloadButton";
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
@@ -50,16 +50,13 @@ Tempo: ${trajeto.tempo ?? "N/A"}\n`
           <div className="flex flex-col lg:flex-row items-center lg:items-stretch mt-5 h-full w-full gap-3">
             <div className="lg:ml-5 h-[250px] w-[300px] lg:h-[540px] lg:w-[370px] xl:w-[700px] 2xl:h-[625px] 2xl:w-[900px] bg-[#7398B7] rounded-xl flex flex-col items-center">
               <h1 className="mt-2.5 text-white font-bold text-center">DETALHES DA TRAJETÓRIA</h1>
-              <Details text={detalhes} />
+              {trajeto ? (<Details comandos={trajeto.comandosEnviados}/>) : (<></>)}
             </div>
             <div className="flex flex-col items-center h-auto w-[300px] lg:h-[625px] lg:w-[600px] lg:mr-5">
-              <div className="flex flex-col h-[225px] w-[300px] lg:h-[400px] lg:w-[600px] bg-[#7398B7] rounded-xl justify items-center">
-                <h1 className="pt-2.5 text-center text-white font-bold">GRÁFICO DE DESEMPENHO</h1>
-                <div className="w-[300px] lg:w-[550px] pt-5">
-                  <Graph />
-                </div>
+              <div className="flex flex-col h-[225px] w-[300px] lg:h-[400px] lg:w-[600px] rounded-xl justify items-center">
+                  <Map comandos={trajeto?.comandosEnviados} />
               </div>
-              <div className="h-3 lg:h-10" />
+              <div className="h-6 lg:h-10" />
               <DownloadButton text="BAIXAR RELATÓRIO" />
             </div>
           </div>
