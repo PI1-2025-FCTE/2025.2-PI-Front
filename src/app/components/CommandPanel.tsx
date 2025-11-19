@@ -3,67 +3,59 @@
 import { useState } from "react";
 import { useDevices } from "../context/DeviceContext";
 import { toast } from "react-toastify";
+import Link from "next/link";
+import { HiOutlineArrowNarrowRight } from "react-icons/hi";
+import { validateCommandString } from "../utils/validateCommands";
 
-function validateCommandString(commandString: string): boolean {
-  if (!commandString || commandString.trim().length === 0) {
-    return false;
-  }
+type BlockType = "direita" | "esquerda" | "avancar";
 
-  const trimmed = commandString.trim();
-  let i = 0;
-
-  while (i < trimmed.length) {
-    const char = trimmed[i];
-
-    if (char === 'd' || char === 'e') {
-      i++;
-    } else if (char === 'a') {
-      if (i + 4 >= trimmed.length) {
-        
-        return false;
-      }
-
-      
-      const fourDigits = trimmed.substring(i + 1, i + 5);
-      if (!/^\d{4}$/.test(fourDigits)) {
-        return false;
-      }
-
-      i += 5;
-    } else {
-      return false;
-    }
-  }
-
-  return true;
+interface CommandBlock {
+  type: BlockType;
+  value?: number;
 }
 
 export default function CommandPanel() {
   const { selectedDevice } = useDevices();
-  const [commandText, setCommandText] = useState("");
-  const [validationError, setValidationError] = useState<string | null>(null);
+  const [commandBlocks, setCommandBlocks] = useState<CommandBlock[]>([]);
 
-  const handleCommandChange = (value: string) => {
-    setCommandText(value);
-    
-    if (validationError) {
-      setValidationError(null);
-    }
+  const addBlock = (type: BlockType, value?: number) => {
+    setCommandBlocks((prev) => [...prev, { type, value }]);
+  };
+
+  const removeBlock = (index: number) => {
+    setCommandBlocks((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateBlockValue = (index: number, value: number) => {
+    if (value < 0) value = 0;
+    if (value > 9999) value = 9999;
+    setCommandBlocks((prev) => {
+      const copy = [...prev];
+      copy[index].value = value;
+      return copy;
+    });
   };
 
   const sendInstruction = async () => {
-    if (!selectedDevice || !commandText.trim()) return;
+    if (!selectedDevice || commandBlocks.length === 0) return;
 
-    const trimmedCommand = commandText.trim();
+    const commandString = commandBlocks
+      .map((block) => {
+        switch (block.type) {
+          case "direita":
+            return "d";
+          case "esquerda":
+            return "e";
+          case "avancar":
+            return `a${block.value?.toString().padStart(4, "0")}`;
+        }
+      })
+      .join("");
 
-    if (!validateCommandString(trimmedCommand)) {
-      const errorMsg = "Comando inválido! Use: 'd' (direita), 'e' (esquerda), ou 'a' seguido de 4 dígitos (ex: a1000)";
-      setValidationError(errorMsg);
-      toast.error(errorMsg);
+    if (!validateCommandString(commandString)) {
+      toast.error("Comando inválido!");
       return;
     }
-
-    const payload = { comandosEnviados: trimmedCommand };
 
     try {
       const response = await fetch(
@@ -71,7 +63,7 @@ export default function CommandPanel() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({ comandosEnviados: commandString }),
         }
       );
 
@@ -82,9 +74,23 @@ export default function CommandPanel() {
       }
 
       const data = await response.json();
-      toast.success(`Comando enviado com sucesso para ${selectedDevice.id}`);
-      setCommandText("");
-      setValidationError(null);
+      const trajetoId = data.idTrajeto;
+
+      toast.success(
+        <div className="flex flex-col items-start">
+          <span>Trajeto criado com sucesso.</span>
+
+          <Link
+            href={`/route/${trajetoId}`}
+            className="mt-1 text-sm text-gray-700 underline underline-offset-2 hover:text-gray-900 transition flex items-center gap-1"
+          >
+            Ver trajeto
+            <HiOutlineArrowNarrowRight size={16} />
+          </Link>
+        </div>
+      );
+
+      setCommandBlocks([]);
     } catch (err: any) {
       toast.error(`Erro ao enviar comando: ${err.message || err}`);
     }
@@ -92,29 +98,95 @@ export default function CommandPanel() {
 
   return (
     <div className="w-full lg:w-3/5 bg-[#7398B7] rounded-xl flex flex-col justify-center items-center p-4">
-      <textarea
-        className="h-64 w-full lg:h-72 lg:w-full 2xl:h-96 2xl:w-full p-5 bg-[#434343] text-white rounded-xl"
-        placeholder={
-          selectedDevice
-            ? `Enviar instrução para ${selectedDevice.id}...`
-            : "Selecione um dispositivo para enviar instrução"
-        }
-        value={commandText}
-        onChange={(e) => handleCommandChange(e.target.value)}
-      />
-      <div className="h-5" />
-      <button
-        onClick={sendInstruction}
-        disabled={!selectedDevice || !selectedDevice.online || !commandText.trim()}
-        className={`h-10 w-32 rounded-xl text-white transition
-          ${
+      <div className="flex gap-2 mb-4 flex-wrap">
+        <button
+          onClick={() => addBlock("avancar", 100)}
+          className="bg-gray-800 px-4 py-2 rounded-xl text-white hover:bg-gray-700"
+        >
+          Avançar
+        </button>
+        <button
+          onClick={() => addBlock("direita")}
+          className="bg-gray-800 px-4 py-2 rounded-xl text-white hover:bg-gray-700"
+        >
+          Virar à direita
+        </button>
+        <button
+          onClick={() => addBlock("esquerda")}
+          className="bg-gray-800 px-4 py-2 rounded-xl text-white hover:bg-gray-700"
+        >
+          Virar à esquerda
+        </button>
+      </div>
+
+      {/* Área de blocos */}
+      <div className="w-full h-64 lg:h-72 2xl:h-96 p-5 bg-[#434343] rounded-xl overflow-y-auto flex flex-col gap-2">
+        {commandBlocks.length === 0 && (
+          <div className="text-gray-400">
+            Clique nos botões acima para montar o comando...
+          </div>
+        )}
+        {commandBlocks.map((block, index) => (
+          <div
+            key={index}
+            className={`px-4 py-2 rounded-xl text-white flex items-center justify-between w-full max-w-[240px] ${
+              block.type === "direita"
+                ? "bg-green-600"
+                : block.type === "esquerda"
+                ? "bg-blue-600"
+                : "bg-yellow-600"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {block.type === "avancar" ? (
+                <>
+                  <span>Avançar</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={9999}
+                    value={block.value}
+                    onChange={(e) =>
+                      updateBlockValue(index, Number(e.target.value))
+                    }
+                    className="w-20 px-1 rounded text-black"
+                  />
+                  <span>cm</span>
+                </>
+              ) : block.type === "direita" ? (
+                "Virar à direita"
+              ) : (
+                "Virar à esquerda"
+              )}
+            </div>
+
+            <button
+              onClick={() => removeBlock(index)}
+              className="ml-2 text-gray-800 font-bold hover:text-red-600"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="w-full flex justify-center mt-6">
+        <button
+          onClick={sendInstruction}
+          disabled={
+            !selectedDevice ||
+            !selectedDevice.online ||
+            commandBlocks.length === 0
+          }
+          className={`h-10 w-32 rounded-xl text-white transition ${
             selectedDevice && selectedDevice.online
-              ? "bg-gray-800 hover:bg-gray-700 cursor-pointer"
+              ? "bg-gray-800 hover:bg-gray-700"
               : "bg-gray-600 cursor-not-allowed"
           }`}
-      >
-        Enviar
-      </button>
+        >
+          Enviar
+        </button>
+      </div>
     </div>
   );
 }

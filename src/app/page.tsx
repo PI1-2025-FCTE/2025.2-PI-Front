@@ -18,7 +18,7 @@ export default function Home() {
       {sideBar ? (
         <SideBar onClick={handleClick} />
       ) : (
-        <div className="min-h-screen w-full bg-[#1E1E1E]">
+        <div className="min-h-dvh flex flex-col bg-[#1E1E1E]">
           <Header onClick={handleClick} />
           <div className="flex flex-col my-10 mx-10 gap-5 lg:flex-row">
             <DeviceList
