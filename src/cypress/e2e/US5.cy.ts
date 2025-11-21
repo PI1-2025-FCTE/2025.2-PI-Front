@@ -1,46 +1,34 @@
-describe("US3-Conectar (caso tenha uma esp disponível)", () => {
-  it("Deve conectar, digitar o comando e enviar a rota", () => {
-    // Acessa a home
+describe("US5 - Envio de comandos", () => {
+  beforeEach(() => {
+    cy.intercept("POST", "http://localhost:8000/trajetos/*", {
+      statusCode: 200,
+      body: { idTrajeto: "123" }
+    }).as("postTrajeto");
+
     cy.visit("/");
-
-
-
-    cy.contains("Selecionar").should("be.visible").click();
-    cy.contains("Selecionado").should("be.visible")
-
-    cy.contains("Selecionado")
-      .parent()
-      .contains("Online")
-      .should("exist");
-
-
-    cy.get("textarea").type("a3000");
-
-    cy.contains("Enviar").should("be.visible").click();
-
-    cy.contains("Comando enviado com sucesso para esp32-123").should("be.visible");
+    cy.contains("Selecionar").click(); // conecta
   });
 
+  it("Deve enviar a rota com sucesso", () => {
+    cy.contains("Avançar").click();
+    cy.contains("Virar à direita").click();
 
-  it("Conectar, enviar comando inválido", () => {
-    // Acessa a home
-    cy.visit("/");
+    cy.contains("Enviar").click();
 
+    cy.wait("@postTrajeto");
 
+    cy.contains("Trajeto criado com sucesso").should("be.visible");
+    cy.contains("Ver trajeto").should("have.attr", "href", "/route/123");
+  });
 
-    cy.contains("Selecionar").should("be.visible").click();
-    cy.contains("Selecionado").should("be.visible")
+    it("Deve mostrar erro ao tentar enviar comando inválido", () => {
+    cy.contains("Avançar").click();
 
-    cy.contains("Selecionado")
-      .parent()
-      .contains("Online")
-      .should("exist");
+    // Atualiza o valor para algo inválido, ex: a003 → 3 dígitos
+    cy.get("input[type=number]").clear().type("abc");
 
+    cy.contains("Enviar").click();
 
-    cy.get("textarea").type("a300");
-
-    cy.contains("Enviar").should("be.visible").click();
-
-    cy.contains("Comando inválido! Use: 'd' (direita), 'e' (esquerda), ou 'a' seguido de 4 dígitos (ex: a1000)").should("be.visible");
+    cy.contains("Comando inválido").should("be.visible");
   });
 });
