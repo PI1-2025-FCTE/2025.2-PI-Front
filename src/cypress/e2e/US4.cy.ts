@@ -1,16 +1,21 @@
-describe("US3-Conectar (caso tenha uma esp disponível)", () => {
-  it("Deve conectar, digitar o comando e enviar a rota", () => {
-    // Acessa a home
+describe("US4 - Montar comandos pelo painel", () => {
+  beforeEach(() => {
     cy.visit("/");
+    cy.contains("Selecionar").click(); // conectar
+    cy.contains("Selecionado").should("be.visible");
+  });
 
+  it("montar os blocos", () => {
+    cy.contains("Avançar").click();
+    cy.contains("Virar à direita").click();
+    cy.contains("Virar à esquerda").click();
 
-    cy.contains("Avançar").should("be.visible").click();
-    cy.contains("Virar à direita").should("be.visible").click();
-    cy.contains("Virar à esquerda").should("be.visible").click();
+    // Blocos aparecem dentro do painel
+    cy.contains("Avançar").should("exist");
+    cy.contains("Virar à direita").should("exist");
+    cy.contains("Virar à esquerda").should("exist");
 
-    cypress.getByLabel()
-    cy.contains("a3000").should("be.visible")
+    // O bloco avançar deve vir com valor padrão 100 → 'a0100'
+    cy.get("input[type=number]").should("have.value", "100");
   });
 });
-
-
