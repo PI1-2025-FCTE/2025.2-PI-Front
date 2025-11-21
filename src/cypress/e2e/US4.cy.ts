@@ -4,11 +4,11 @@ describe("US3-Conectar (caso tenha uma esp disponível)", () => {
     cy.visit("/");
 
 
-    cy.contains("Selecionar").should("be.visible").click();
+    cy.contains("Avançar").should("be.visible").click();
+    cy.contains("Virar à direita").should("be.visible").click();
+    cy.contains("Virar à esquerda").should("be.visible").click();
 
-
-    cy.get("textarea").type("a3000");
-
+    cypress.getByLabel()
     cy.contains("a3000").should("be.visible")
   });
 });
