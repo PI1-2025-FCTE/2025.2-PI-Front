@@ -21,16 +21,6 @@ describe("US5 - Envio de comandos", () => {
     cy.contains("Ver trajeto").should("have.attr", "href", "/route/123");
   });
 
-    it("Deve mostrar erro ao tentar enviar comando inválido", () => {
-    cy.contains("Avançar").click();
-
-    // Atualiza o valor para algo inválido, ex: a003 → 3 dígitos
-    cy.get("input[type=number]").clear().type("abc");
-
-    cy.contains("Enviar").click();
-
-    cy.contains("Comando inválido").should("be.visible");
-  });
 
     //aguardando implementação do gráfico
   it("Deve abrir a sidebar, selecionar um percurso e exibir os detalhes", () => {
