@@ -33,12 +33,13 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
   // Monta o texto dos detalhes usando o JSON real
   const detalhes = trajeto
-    ?  `ID do Trajeto: ${trajeto.idTrajeto}\n
-Comandos Enviados: ${trajeto.comandosEnviados ?? "N/A"}\n
-Comandos Executados: ${trajeto.comandosExecutados ?? "N/A"}\n
-Status: ${trajeto.status ?? "N/A"}\n
-Tempo: ${trajeto.tempo ?? "N/A"}\n`
-    :  "Carregando detalhes...";
+    ?  
+        `ID do Trajeto: ${trajeto.idTrajeto}\n
+        Comandos Enviados: ${trajeto.comandosEnviados ?? "N/A"}\n
+        Comandos Executados: ${trajeto.comandosExecutados ?? "N/A"}\n
+        Status: ${trajeto.status ?? "N/A"}\n
+        Tempo: ${trajeto.tempo ?? "N/A"}\n`
+    :   "Carregando detalhes...";
 
   return (
     <div>
@@ -57,7 +58,7 @@ Tempo: ${trajeto.tempo ?? "N/A"}\n`
                   <Map comandos={trajeto?.comandosEnviados} />
               </div>
               <div className="h-6 lg:h-10" />
-              <DownloadButton text="BAIXAR RELATÓRIO" />
+              {trajeto ? (<DownloadButton text="BAIXAR RELATÓRIO" comandos={trajeto.comandosEnviados}/>) : (<></>)}
             </div>
           </div>
         </div>

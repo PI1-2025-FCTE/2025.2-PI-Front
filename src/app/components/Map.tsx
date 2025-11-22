@@ -27,7 +27,7 @@ export default function Map({ comandos }: MapProps) {
     ctx.clearRect(0, 0, width, height);
 
     if (!comandos || comandos.trim() === "") {
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = "#888";
       ctx.font = "16px Arial";
       ctx.textAlign = "center";
       ctx.fillText("Nenhum trajeto registrado", width / 2, height / 2);
@@ -63,7 +63,7 @@ export default function Map({ comandos }: MapProps) {
     });
 
     if (path.length === 1) {
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = "#888";
       ctx.font = "16px Arial";
       ctx.textAlign = "center";
       ctx.fillText("Nenhum movimento detectado", width / 2, height / 2);
@@ -112,14 +112,14 @@ export default function Map({ comandos }: MapProps) {
       ctx.fill();
     }
 
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = "#888";
     ctx.font = "12px Arial";
     ctx.textAlign = "left";
     ctx.fillText("Início", 10, height - 10);
     ctx.fillStyle = "#2196F3";
     ctx.fillRect(50, height - 18, 12, 12);
     
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = "#888";
     ctx.fillText("Fim", 70, height - 10);
     ctx.fillStyle = "#F44336";
     ctx.fillRect(100, height - 18, 12, 12);

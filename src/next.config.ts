@@ -1,8 +1,8 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
-  output: 'standalone',
+const nextConfig = {
+  experimental: {
+    appDir: true,
+  },
+  output: 'standalone', 
 };
 
-export default nextConfig;
+module.exports = nextConfig;
