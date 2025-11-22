@@ -11,7 +11,7 @@ export default function DownloadButton({text, comandos}: DownloadButtonProps ) {
     async function downloadPDF() 
     {
       
-      const markdown = `# Instruções do Carrinho\n\n${parseComandos(comandos)}`;
+      const markdown = `${parseComandos(comandos)}`;
       const res = await fetch("/api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

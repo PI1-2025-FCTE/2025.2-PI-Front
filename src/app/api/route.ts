@@ -1,83 +1,138 @@
-import { marked } from "marked";
-import puppeteer from "puppeteer";
+import { NextRequest, NextResponse } from "next/server";
+import { PDFDocument, rgb, StandardFonts, BlendMode, PDFPage } from "pdf-lib";
 
-export async function POST(request: Request) {
+interface ReportPayload {
+  markdown: string;
+  mapImage: string | null; 
+}
+
+export const dynamic = "force-dynamic";
+
+const ORANGE = rgb(0.9, 0.35, 0.1);
+const BLACK = rgb(0, 0, 0);
+const GRAY = rgb(0.9, 0.9, 0.9); 
+
+export async function POST(req: NextRequest) {
   try {
-    const { markdown, mapImage } = await request.json();
 
-    if (!markdown) {
-      return new Response(
-        JSON.stringify({ error: "Markdown is required" }),
-        { status: 400 }
-      );
+    const { markdown, mapImage }: ReportPayload = await req.json();
+
+    if (!markdown && !mapImage) {
+      return NextResponse.json({ error: "Markdown or image required" }, { status: 400 });
     }
 
-    let imageHTML = "";
+    const pdfDoc = await PDFDocument.create();
+    let page: PDFPage = pdfDoc.addPage([595, 842]); 
+
+    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    let y = 800; 
+    const margin = 30; 
     if (mapImage) {
-      imageHTML = `
-        <h1>Mapa do Trajeto</h1>
-        <img src="${mapImage}" style="width: 100%; max-width: 700px; border:1px solid #ccc; border-radius:8px;" />
-        <hr />
-      `;
+      const mapTitle = "Mapa do Trajeto";
+
+      page.drawText(mapTitle, {
+        x: margin,
+        y,
+        size: 18,
+        font: fontBold,
+        color: BLACK,
+      });
+
+      y -= 25; 
+
+      let image;
+      if (mapImage.startsWith("data:image/png")) {
+        const pngBytes = Buffer.from(mapImage.split(",")[1], "base64");
+        image = await pdfDoc.embedPng(pngBytes);
+      } else if (mapImage.startsWith("data:image/jpeg")) {
+        const jpgBytes = Buffer.from(mapImage.split(",")[1], "base64");
+        image = await pdfDoc.embedJpg(jpgBytes);
+      }
+
+      if (image) {
+        const pageWidth = page.getWidth();
+        const maxImageWidth = pageWidth - 2 * margin; 
+        
+        const desiredScale = 0.7; 
+        const { width, height } = image.scale(desiredScale); 
+        
+        const mapBoxHeight = height + 40; 
+        const mapBoxWidth = maxImageWidth;
+        const mapBoxY = y - mapBoxHeight;
+
+        page.drawRectangle({
+            x: margin,
+            y: mapBoxY,
+            width: mapBoxWidth,
+            height: mapBoxHeight,
+            color: GRAY, 
+            borderColor: rgb(0.8, 0.8, 0.8),
+            borderWidth: 1,
+        });
+
+        const imgWidth = width - 20 > 0 ? width - 20 : width;
+        const imgHeight = height - 20 > 0 ? height - 20 : height;
+
+        page.drawImage(image, {
+          x: margin + 10, 
+          y: mapBoxY + 10,
+          width: imgWidth,
+          height: imgHeight,
+          opacity: 1,
+          blendMode: BlendMode.Normal,
+        });
+
+        y = mapBoxY - 20; 
+      }
     }
 
-    // Converte Markdown para HTML
-    const html = `
-      <html>
-          <head>
-            <meta charset="UTF-8" />
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                padding: 30px;
-                line-height: 1.5;
-              }
-              h1, h2, h3 {
-                color: #F26416;
-              }
-              
-              code {
-                background: #eee;
-                padding: 3px;
-                border-radius: 4px;
-              }
-            </style>
-          </head>
-        <body>
-          ${imageHTML}
-          ${marked(markdown)}
-        </body>
-      </html>
-    `;
+    if (markdown) {
+        
+      const instructionsTitle = "Instruções do Carrinho";
+      page.drawText(instructionsTitle, {
+        x: margin,
+        y: y,
+        size: 18, 
+        font: fontBold,
+        color: BLACK, 
+      });
 
-    // Cria PDF com Puppeteer
-    const browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+      y -= 30; 
 
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "load" });
+      const lines = markdown.split("\n").filter(line => line.trim() !== "");
+      const fontSize = 14; 
+      const lineHeight = fontSize + 5;
 
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-    });
+      for (const line of lines) {
+        if (y < margin + 50) { 
+          page = pdfDoc.addPage([595, 842]);
+          y = 800;
+        }
 
-    await browser.close();
+        page.drawText(line, {
+          x: margin,
+          y: y,
+          size: fontSize,
+          font: fontRegular,
+          color: BLACK,
+        });
+        y -= lineHeight;
+      }
+    }
 
-    return new Response(pdfBuffer, {
+    const pdfBytes = await pdfDoc.save();
+
+    return new Response(Buffer.from(pdfBytes), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": "attachment; filename=relatorio.pdf",
       },
     });
-  } catch (error) {
-    console.error("PDF generation error:", error);
-    return new Response(
-      JSON.stringify({ error: "Failed to generate PDF" }),
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error("PDF generation error:", err);
+    return NextResponse.json({ error: "Failed to generate PDF" }, { status: 500 });
   }
 }
