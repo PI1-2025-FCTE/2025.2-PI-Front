@@ -166,7 +166,7 @@ export default function Map({
     ctx.textBaseline = "middle";
 
     const drawText = (text: string) => {
-      ctx.fillStyle = "#ddd";
+      ctx.fillStyle = "#888";
       ctx.fillText(text, currentX, legendY);
       const textWidth = ctx.measureText(text).width;
       currentX += textWidth + itemGap;
