@@ -3,7 +3,8 @@
 import { useEffect, useRef } from "react";
 
 interface MapProps {
-  comandos: string;
+  comandosEnviados?: string;
+  comandosExecutados?: string;
 }
 
 interface Point {
@@ -11,7 +12,7 @@ interface Point {
   y: number;
 }
 
-export default function Map({ comandos }: MapProps) {
+export default function Map({ comandosEnviados, comandosExecutados }: MapProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export default function Map({ comandos }: MapProps) {
 
     ctx.clearRect(0, 0, width, height);
 
-    if (!comandos || comandos.trim() === "") {
+    if ((!comandosEnviados || comandosEnviados.trim() === "") && (!comandosExecutados || comandosExecutados.trim() === "")) {
       ctx.fillStyle = "#888";
       ctx.font = "16px Arial";
       ctx.textAlign = "center";
@@ -34,35 +35,10 @@ export default function Map({ comandos }: MapProps) {
       return;
     }
 
-    let x = width / 2;
-    let y = height - 50;
-    let angle = -90;
+    const pathEnviado = comandosEnviados ? buildPath(comandosEnviados) : null;
+    const pathExecutado = comandosExecutados ? buildPath(comandosExecutados) : null;
 
-    const path: Point[] = [{ x, y }];
-    let maxX = x, minX = x, maxY = y, minY = y;
-
-    const commands = parseCommands(comandos);
-
-    commands.forEach((cmd) => {
-      if (cmd.type === "a") {
-        const distance = cmd.value / 10;
-        const rad = (angle * Math.PI) / 180;
-        x += distance * Math.cos(rad);
-        y += distance * Math.sin(rad);
-        path.push({ x, y });
-
-        maxX = Math.max(maxX, x);
-        minX = Math.min(minX, x);
-        maxY = Math.max(maxY, y);
-        minY = Math.min(minY, y);
-      } else if (cmd.type === "d") {
-        angle += 90;
-      } else if (cmd.type === "e") {
-        angle -= 90;
-      }
-    });
-
-    if (path.length === 1) {
+    if ((!pathEnviado || pathEnviado.length === 1) && (!pathExecutado || pathExecutado.length === 1)) {
       ctx.fillStyle = "#888";
       ctx.font = "16px Arial";
       ctx.textAlign = "center";
@@ -70,9 +46,24 @@ export default function Map({ comandos }: MapProps) {
       return;
     }
 
+    const allPoints = [...(pathEnviado || []), ...(pathExecutado || [])];
+    let maxX = -Infinity, minX = Infinity, maxY = -Infinity, minY = Infinity;
+
+    allPoints.forEach((p) => {
+      maxX = Math.max(maxX, p.x);
+      minX = Math.min(minX, p.x);
+      maxY = Math.max(maxY, p.y);
+      minY = Math.min(minY, p.y);
+    });
+
+    if (!isFinite(maxX)) maxX = 0;
+    if (!isFinite(minX)) minX = 0;
+    if (!isFinite(maxY)) maxY = 0;
+    if (!isFinite(minY)) minY = 0;
+
     const padding = 40;
-    const pathWidth = maxX - minX || 1;
-    const pathHeight = maxY - minY || 1;
+    const pathWidth = (maxX - minX) || 1;
+    const pathHeight = (maxY - minY) || 1;
     const scale = Math.min(
       (width - 2 * padding) / pathWidth,
       (height - 2 * padding) / pathHeight
@@ -81,49 +72,91 @@ export default function Map({ comandos }: MapProps) {
     const offsetX = (width - pathWidth * scale) / 2 - minX * scale;
     const offsetY = (height - pathHeight * scale) / 2 - minY * scale;
 
-    ctx.strokeStyle = "#4CAF50";
-    ctx.lineWidth = 3;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
 
-    ctx.beginPath();
-    path.forEach((point, index) => {
-      const px = point.x * scale + offsetX;
-      const py = point.y * scale + offsetY;
-      if (index === 0) {
-        ctx.moveTo(px, py);
-      } else {
-        ctx.lineTo(px, py);
-      }
-    });
-    ctx.stroke();
-
-    if (path.length > 0) {
-      const start = path[0];
-      ctx.fillStyle = "#2196F3";
+    if (pathEnviado && pathEnviado.length > 1) {
+      ctx.strokeStyle = "#4CAF50";
+      ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.arc(start.x * scale + offsetX, start.y * scale + offsetY, 6, 0, 2 * Math.PI);
-      ctx.fill();
+      pathEnviado.forEach((point, index) => {
+        const px = point.x * scale + offsetX;
+        const py = point.y * scale + offsetY;
+        if (index === 0) {
+          ctx.moveTo(px, py);
+        } else {
+          ctx.lineTo(px, py);
+        }
+      });
+      ctx.stroke();
+    }
 
-      const end = path[path.length - 1];
+    if (pathExecutado && pathExecutado.length > 1) {
+      ctx.strokeStyle = "#FF6B6B";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      pathExecutado.forEach((point, index) => {
+        const px = point.x * scale + offsetX;
+        const py = point.y * scale + offsetY;
+        if (index === 0) {
+          ctx.moveTo(px, py);
+        } else {
+          ctx.lineTo(px, py);
+        }
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    ctx.fillStyle = "#2196F3";
+    ctx.beginPath();
+    ctx.arc((pathEnviado ? pathEnviado[0].x : pathExecutado![0].x) * scale + offsetX, (pathEnviado ? pathEnviado[0].y : pathExecutado![0].y) * scale + offsetY, 6, 0, 2 * Math.PI);
+    ctx.fill();
+
+    const lastPointEnviado = pathEnviado ? pathEnviado[pathEnviado.length - 1] : null;
+    const lastPointExecutado = pathExecutado ? pathExecutado[pathExecutado.length - 1] : null;
+
+    if (lastPointExecutado) {
+      ctx.fillStyle = "#FF6B6B";
+      ctx.beginPath();
+      ctx.arc(lastPointExecutado.x * scale + offsetX, lastPointExecutado.y * scale + offsetY, 6, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
+    if (lastPointEnviado && !lastPointExecutado) {
       ctx.fillStyle = "#F44336";
       ctx.beginPath();
-      ctx.arc(end.x * scale + offsetX, end.y * scale + offsetY, 6, 0, 2 * Math.PI);
+      ctx.arc(lastPointEnviado.x * scale + offsetX, lastPointEnviado.y * scale + offsetY, 6, 0, 2 * Math.PI);
       ctx.fill();
     }
 
     ctx.fillStyle = "#888";
     ctx.font = "12px Arial";
     ctx.textAlign = "left";
+    
     ctx.fillText("Início", 10, height - 10);
     ctx.fillStyle = "#2196F3";
     ctx.fillRect(50, height - 18, 12, 12);
     
-    ctx.fillStyle = "#888";
-    ctx.fillText("Fim", 70, height - 10);
-    ctx.fillStyle = "#F44336";
-    ctx.fillRect(100, height - 18, 12, 12);
-  }, [comandos]);
+    if (comandosEnviados) {
+      ctx.fillStyle = "#888";
+      ctx.fillText("Enviado", 70, height - 10);
+      ctx.strokeStyle = "#4CAF50";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(145, height - 18, 12, 12);
+    }
+    
+    if (comandosExecutados) {
+      ctx.fillStyle = "#888";
+      ctx.fillText("Executado", 165, height - 10);
+      ctx.strokeStyle = "#FF6B6B";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([3, 3]);
+      ctx.strokeRect(255, height - 18, 12, 12);
+      ctx.setLineDash([]);
+    }
+  }, [comandosEnviados, comandosExecutados]);
 
   return (
     <div className="bg-[#7398B7] rounded-xl p-4">
@@ -143,6 +176,32 @@ export default function Map({ comandos }: MapProps) {
         </div>
     </div>
   );
+}
+
+function buildPath(comandos: string): Point[] {
+  let x = 0;
+  let y = 0;
+  let angle = -90;
+
+  const path: Point[] = [{ x, y }];
+
+  const commands = parseCommands(comandos);
+
+  commands.forEach((cmd) => {
+    if (cmd.type === "a") {
+      const distance = cmd.value / 10;
+      const rad = (angle * Math.PI) / 180;
+      x += distance * Math.cos(rad);
+      y += distance * Math.sin(rad);
+      path.push({ x, y });
+    } else if (cmd.type === "d") {
+      angle += 90;
+    } else if (cmd.type === "e") {
+      angle -= 90;
+    }
+  });
+
+  return path;
 }
 
 function parseCommands(comandos: string): Array<{ type: string; value: number }> {
