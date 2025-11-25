@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react"; // note o use importado
+import { useState, useEffect, use } from "react";
 import axios from "axios";
 import SideBar from "@/app/components/SideBar";
 import Header from "@/app/components/Header";
@@ -9,7 +9,7 @@ import Map from "@/app/components/Map";
 import DownloadButton from "@/app/components/DownloadButton";
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params); // "desembrulha" o Promise do Next.js
+  const { id } = use(params);
 
   const [sideBar, setSideBar] = useState(false);
   const [trajeto, setTrajeto] = useState<any>(null);
@@ -31,7 +31,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     fetchData();
   }, [id]);
 
-  // Monta o texto dos detalhes usando o JSON real
   const detalhes = trajeto
     ?  
         `ID do Trajeto: ${trajeto.idTrajeto}\n
@@ -55,7 +54,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
             </div>
             <div className="flex flex-col items-center h-auto w-[300px] lg:h-[625px] lg:w-[600px] lg:mr-5">
               <div className="flex flex-col h-[225px] w-[300px] lg:h-[400px] lg:w-[600px] rounded-xl justify items-center">
-                  <Map comandos={trajeto?.comandosEnviados} />
+                <Map comandosEnviados={trajeto?.comandosEnviados} comandosExecutados={trajeto?.comandosExecutados} />
               </div>
               <div className="h-6 lg:h-10" />
               {trajeto ? (<DownloadButton text="BAIXAR RELATÓRIO" comandos={trajeto.comandosEnviados}/>) : (<></>)}
