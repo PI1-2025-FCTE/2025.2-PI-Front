@@ -7,6 +7,8 @@ import Link from "next/link";
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
 import { validateCommandString } from "../utils/validateCommands";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 type BlockType = "direita" | "esquerda" | "avancar";
 
 interface CommandBlock {
@@ -59,7 +61,7 @@ export default function CommandPanel() {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/trajetos/${selectedDevice.id}`,
+        `${API_URL}/trajetos/${selectedDevice.id}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

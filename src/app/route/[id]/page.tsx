@@ -8,6 +8,8 @@ import Details from "@/app/components/Details";
 import Map from "@/app/components/Map";
 import DownloadButton from "@/app/components/DownloadButton";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
 
@@ -21,7 +23,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/trajetos/${id}`);
+        const response = await axios.get(`${API_URL}/trajetos/${id}`);
         setTrajeto(response.data);
       } catch (error) {
         console.error("Erro ao buscar dados:", error);

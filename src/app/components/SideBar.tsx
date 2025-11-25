@@ -7,6 +7,8 @@ import Link from "next/link";
 import Button from "./Button";
 import { RouteBox } from "./RouteBox";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 type Trajeto = {
   idTrajeto: number;
   comandosEnviados: string;
@@ -27,7 +29,7 @@ export default function SideBar({ onClick, instruction }: SideBarProps) {
     async function fetchRoutes() {
       try {
         const response = await axios.get<Trajeto[]>(
-          "http://localhost:8000/trajetos/"
+          `${API_URL}/trajetos/`
         );
         setTrajetos(response.data);
       } catch (error) {
