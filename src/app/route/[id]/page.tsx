@@ -54,8 +54,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
               {trajeto ? (<Details comandos={trajeto.comandosEnviados}/>) : (<></>)}
             </div>
             <div className="flex flex-col items-center h-auto w-[300px] lg:h-[625px] lg:w-[600px] lg:mr-5">
-              <div className="flex flex-col h-[225px] w-[300px] lg:h-[400px] lg:w-[600px] rounded-xl justify items-center">
-                  <Map comandos={trajeto?.comandosEnviados} />
+              <Map comandosEnviados={trajeto?.comandosEnviados} comandosExecutados={trajeto?.comandosExecutados} />
               </div>
               <div className="h-6 lg:h-10" />
               {trajeto ? (<DownloadButton text="BAIXAR RELATÓRIO" comandos={trajeto.comandosEnviados}/>) : (<></>)}
