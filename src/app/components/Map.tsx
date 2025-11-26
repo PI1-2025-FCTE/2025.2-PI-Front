@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { parseComandos } from "../utils/commandsUtils";
 
 interface MapProps {
   comandosEnviados?: string;
-  comandosExecutados?: string;
+  comandosExecutados?: string | null;
 }
 
 interface Point {
@@ -185,7 +186,7 @@ export default function Map({
     ctx.fill();
     currentX += 14 + iconGap;
     drawText("Destino");
-    
+
     if (comandosEnviados) {
       ctx.strokeStyle = "#4CAF50";
       ctx.lineWidth = 3;
@@ -196,7 +197,7 @@ export default function Map({
       currentX += 25 + iconGap;
       drawText("Enviado");
     }
-    
+
     if (comandosExecutados) {
       ctx.strokeStyle = "#FF6B6B";
       ctx.lineWidth = 2;
@@ -216,17 +217,17 @@ export default function Map({
       <h3 className="text-xl font-semibold mb-3 text-center text-white">
         MAPA DO TRAJETO
       </h3>
-      <div className="bg-[#2B2B2B] rounded-lg">  
-            <div className="w-full h-full flex items-center justify-center">
-                <canvas
-                    ref={canvasRef}
-                    width={800}
-                    height={500}
-                    className="max-w-full max-h-full"
-                    style={{ width: "100%", height: "auto" }}
-                />
-            </div>
+      <div className="bg-[#2B2B2B] rounded-lg">
+        <div className="w-full h-full flex items-center justify-center">
+          <canvas
+            ref={canvasRef}
+            width={800}
+            height={500}
+            className="max-w-full max-h-full"
+            style={{ width: "100%", height: "auto" }}
+          />
         </div>
+      </div>
     </div>
   );
 }
@@ -236,58 +237,21 @@ function buildPath(comandos: string): Point[] {
   let y = 0;
   let angle = -90;
   const path: Point[] = [{ x, y }];
-  const commands = parseCommands(comandos);
+  const commands = parseComandos(comandos);
   commands.forEach((cmd) => {
-    if (cmd.type === "a") {
-      const distance = cmd.value / 10;
-      const rad = (angle * Math.PI) / 180;
-      x += distance * Math.cos(rad);
-      y += distance * Math.sin(rad);
-      path.push({ x, y });
-    } else if (cmd.type === "d") {
+    if (cmd.tipo === "a") {
+      const distance = cmd.valor / 10;
+      if (distance !== 0) {
+        const rad = (angle * Math.PI) / 180;
+        x += distance * Math.cos(rad);
+        y += distance * Math.sin(rad);
+        path.push({ x, y });
+      }
+    } else if (cmd.tipo === "d") {
       angle += 90;
-    } else if (cmd.type === "e") {
+    } else if (cmd.tipo === "e") {
       angle -= 90;
     }
   });
   return path;
-}
-
-function parseCommands(
-  comandos: string
-): Array<{ type: string; value: number }> {
-  const result: Array<{ type: string; value: number }> = [];
-  let i = 0;
-  while (i < comandos.length) {
-    const char = comandos[i];
-    if (char === "a") {
-      const distStr = comandos.substring(i + 1, i + 5);
-      const dist = parseInt(distStr, 10);
-      if (!isNaN(dist)) {
-        result.push({ type: "a", value: dist });
-        i += 5;
-      } else {
-        i++;
-      }
-    } else if (char === "d") {
-      result.push({ type: "d", value: 90 });
-      i++;
-    } else if (char === "e") {
-      result.push({ type: "e", value: -90 });
-      i++;
-    } else if (char === "t") {
-      const timeStr = comandos.substring(i + 1, i + 5);
-      const time = parseInt(timeStr, 10);
-      if (!isNaN(time)) {
-        result.push({ type: "t", value: time });
-        i += 5;
-      } else {
-        i++;
-      }
-    } else {
-      i++;
-    }
-  }
-
-  return result;
 }

@@ -6,16 +6,9 @@ import { SlArrowLeft } from "react-icons/sl";
 import Link from "next/link";
 import Button from "./Button";
 import { RouteBox } from "./RouteBox";
+import { Trajeto } from "../types/trajeto";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-type Trajeto = {
-  idTrajeto: number;
-  comandosEnviados: string;
-  comandosExecutados: string | null;
-  status: string | null;
-  tempo: string | null;
-};
 
 type SideBarProps = {
   onClick: () => void;
@@ -45,9 +38,8 @@ export default function SideBar({ onClick, instruction }: SideBarProps) {
       <div className="min-h-screen w-full md:w-[450px] bg-[#446784] flex flex-col items-center">
         {/* Botão Voltar */}
         <div className="flex h-[100px] w-full md:w-[400px] justify-end pr-2 md:pr-0">
-          <button>
+          <button onClick={onClick}>
             <SlArrowLeft
-              onClick={onClick}
               className="text-[#D9D9D9] text-[35px] font-bold transition hover:scale-110"
             />
           </button>

@@ -7,6 +7,8 @@ import Header from "@/app/components/Header";
 import Details from "@/app/components/Details";
 import Map from "@/app/components/Map";
 import Button from "@/app/components/Button";
+import { Trajeto } from "@/app/types/trajeto";
+import { comandosToMarkdown, parseComandos } from "@/app/utils/commandsUtils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -14,7 +16,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
 
   const [sideBar, setSideBar] = useState(false);
-  const [trajeto, setTrajeto] = useState<any>(null);
+  const [trajeto, setTrajeto] = useState<Trajeto | null>(null);
 
   const handleClick = () => setSideBar(!sideBar);
 
@@ -33,7 +35,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const downloadRelatorio = async (comandos: string, nomeArquivo: string) => {
     const canvas = document.querySelector("canvas") as HTMLCanvasElement;
     const mapImage = canvas ? canvas.toDataURL("image/png") : null;
-    const markdown = parseComandos(comandos);
+    const markdown = comandosToMarkdown(parseComandos(comandos));
 
     try {
       const res = await fetch(`/api`, {
@@ -68,7 +70,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
               <h2 className="mt-2.5 text-white font-bold text-center">
                 DETALHES DA TRAJETÓRIA
               </h2>
-              {trajeto && <Details comandos={trajeto.comandosEnviados} />}
+              {trajeto && <Details comandos={parseComandos(trajeto.comandosEnviados)} />}
             </div>
             <div className="flex flex-col items-center h-auto w-[300px] lg:h-[625px] lg:w-[600px] lg:mr-5">
               <div className="flex flex-col h-[225px] w-[300px] lg:h-[400px] lg:w-[600px] rounded-xl justify-center items-center">
@@ -96,43 +98,4 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       )}
     </div>
   );
-}
-
-function parseComandos(comando: string): string {
-  let resultado = "";
-  let i = 0;
-  let step = 1;
-
-  const regex = /^(?:a\d{4}|[de])+$/;
-  const validate = regex.test(comando);
-
-  if (!validate) return "Comando inválido";
-
-  while (i < comando.length) {
-    const char = comando[i];
-
-    if (char === "a") {
-      const distancia = comando.substring(i + 1, i + 5);
-      resultado += `${step}. Andar ${parseInt(distancia, 10)} cm para frente\n`;
-      i += 5;
-      step++;
-    } else if (char === "d") {
-      resultado += `${step}. Virar 90° para a direita\n`;
-      i += 1;
-      step++;
-    } else if (char === "e") {
-      resultado += `${step}. Virar 90° para a esquerda\n`;
-      i += 1;
-      step++;
-    } else if (char === "t") {
-      const tempo = comando.substring(i + 1, i + 5);
-      resultado += `${step}. Pausar ${parseInt(tempo, 10)} ms\n`;
-      i += 5;
-      step++;
-    } else {
-      i++;
-    }
-  }
-
-  return resultado.trim();
 }
