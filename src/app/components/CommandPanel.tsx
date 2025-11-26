@@ -5,7 +5,9 @@ import { useDevices } from "../context/DeviceContext";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
-import { validateCommandString } from "../utils/validateCommands";
+import { validateCommandString } from "../utils/commandsUtils";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type BlockType = "direita" | "esquerda" | "avancar";
 
@@ -59,7 +61,7 @@ export default function CommandPanel() {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/trajetos/${selectedDevice.id}`,
+        `${API_URL}/trajetos/${selectedDevice.id}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -129,6 +131,7 @@ export default function CommandPanel() {
         {commandBlocks.map((block, index) => (
           <div
             key={index}
+            data-testid={`command-block-${block.type}-${index}`}
             className={`px-4 py-2 rounded-xl text-white flex items-center justify-between w-full max-w-[240px] ${
               block.type === "direita"
                 ? "bg-green-600"

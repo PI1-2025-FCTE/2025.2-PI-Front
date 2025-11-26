@@ -10,6 +10,8 @@ import {
 
 import { toast } from "react-toastify";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export interface Device {
   id: string;
   online: boolean;
@@ -37,7 +39,7 @@ export const DevicesProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchDevices = async () => {
     try {
-      const response = await fetch("http://localhost:8000/devices");
+      const response = await fetch(`${API_URL}/devices`);
       const data = await response.json();
 
       const devicesArray: Device[] = Object.entries(data).map(

@@ -15,8 +15,9 @@ export default function Header({ onClick }: HeaderProps) {
     const fillPercent = level !== null ? Math.max(0, Math.min(100, level)) : 0;
 
     return (
-      <div className="relative w-6 h-3 border border-gray-400 rounded-sm max-sm:w-5 max-sm:h-2.5">
+      <div data-testid="battery-icon" className="relative w-6 h-3 border border-gray-400 rounded-sm max-sm:w-5 max-sm:h-2.5">
         <div
+          data-testid="battery-fill"
           className="absolute top-0 left-0 h-full rounded-sm"
           style={{
             width: `${fillPercent}%`,
@@ -56,6 +57,7 @@ export default function Header({ onClick }: HeaderProps) {
             <div className="flex items-center gap-3 bg-gray-100 rounded-lg px-3 py-1 shadow-md max-sm:px-2 max-sm:py-1 max-sm:gap-1">
               <div className="flex items-center gap-2 max-sm:gap-1">
                 <FiCircle
+                  data-testid={selectedDevice.online ? "status-online" : "status-offline"}
                   className={`${
                     selectedDevice.online ? "text-green-500" : "text-red-500"
                   } max-sm:text-xs`}

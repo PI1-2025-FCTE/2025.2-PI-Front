@@ -6,14 +6,9 @@ import { SlArrowLeft } from "react-icons/sl";
 import Link from "next/link";
 import Button from "./Button";
 import { RouteBox } from "./RouteBox";
+import { Trajeto } from "../types/trajeto";
 
-type Trajeto = {
-  idTrajeto: number;
-  comandosEnviados: string;
-  comandosExecutados: string | null;
-  status: string | null;
-  tempo: string | null;
-};
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type SideBarProps = {
   onClick: () => void;
@@ -27,7 +22,7 @@ export default function SideBar({ onClick, instruction }: SideBarProps) {
     async function fetchRoutes() {
       try {
         const response = await axios.get<Trajeto[]>(
-          "http://localhost:8000/trajetos/"
+          `${API_URL}/trajetos/`
         );
         setTrajetos(response.data);
       } catch (error) {
@@ -43,9 +38,8 @@ export default function SideBar({ onClick, instruction }: SideBarProps) {
       <div className="min-h-screen w-full md:w-[450px] bg-[#446784] flex flex-col items-center">
         {/* Botão Voltar */}
         <div className="flex h-[100px] w-full md:w-[400px] justify-end pr-2 md:pr-0">
-          <button>
+          <button onClick={onClick}>
             <SlArrowLeft
-              onClick={onClick}
               className="text-[#D9D9D9] text-[35px] font-bold transition hover:scale-110"
             />
           </button>
@@ -72,7 +66,7 @@ export default function SideBar({ onClick, instruction }: SideBarProps) {
         {instruction && (
           <div className="mt-10">
             <Link href={"/"}>
-              <Button text="INSTRUÇÃO" />
+              <Button>INSTRUÇÃO</Button>
             </Link>
           </div>
         )}
