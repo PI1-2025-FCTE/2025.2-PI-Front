@@ -74,7 +74,7 @@ export default function SideBar({ onClick, instruction }: SideBarProps) {
         {instruction && (
           <div className="mt-10">
             <Link href={"/"}>
-              <Button text="INSTRUÇÃO" />
+              <Button>INSTRUÇÃO</Button>
             </Link>
           </div>
         )}
