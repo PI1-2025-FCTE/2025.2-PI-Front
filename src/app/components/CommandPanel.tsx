@@ -8,6 +8,7 @@ import { HiOutlineArrowNarrowRight } from "react-icons/hi";
 import { validateCommandString } from "../utils/commandsUtils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const BACKEND_URL = "https://20252-pi-service--AndrJoo.replit.app";
 
 type BlockType = "direita" | "esquerda" | "avancar";
 
@@ -19,6 +20,7 @@ interface CommandBlock {
 export default function CommandPanel() {
   const { selectedDevice } = useDevices();
   const [commandBlocks, setCommandBlocks] = useState<CommandBlock[]>([]);
+  const [isStopping, setIsStopping] = useState(false);
 
   const addBlock = (type: BlockType, value?: number) => {
     setCommandBlocks((prev) => [...prev, { type, value }]);
@@ -98,6 +100,33 @@ export default function CommandPanel() {
     }
   };
 
+  const handleStopExecution = async () => {
+    if (!selectedDevice) return;
+    
+    setIsStopping(true);
+    try {
+      const response = await fetch(
+        `${BACKEND_URL}/robos/${selectedDevice.id}/parar`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        toast.error(`Erro ao parar: ${data.detail || "Falha ao parar execução"}`);
+        return;
+      }
+
+      toast.success("Execução parada com sucesso!");
+    } catch (err: any) {
+      toast.error(`Erro ao parar execução: ${err.message || err}`);
+    } finally {
+      setIsStopping(false);
+    }
+  };
+
   return (
     <div className="w-full lg:w-3/5 bg-[#7398B7] rounded-xl flex flex-col justify-center items-center p-4">
       <div className="flex gap-2 mb-4 flex-wrap">
@@ -173,7 +202,7 @@ export default function CommandPanel() {
         ))}
       </div>
 
-      <div className="w-full flex justify-center mt-6">
+      <div className="w-full flex justify-center gap-4 mt-6">
         <button
           onClick={sendInstruction}
           disabled={
@@ -188,6 +217,13 @@ export default function CommandPanel() {
           }`}
         >
           Enviar
+        </button>
+        <button
+          onClick={handleStopExecution}
+          disabled={isStopping || !selectedDevice}
+          className="h-10 w-32 rounded-xl bg-red-600 text-white hover:bg-red-700 disabled:bg-red-800 transition font-bold"
+        >
+          {isStopping ? "Parando..." : "Parar"}
         </button>
       </div>
     </div>
