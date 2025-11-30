@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
 import { validateCommandString } from "../utils/commandsUtils";
-import { API_URL } from "../constants/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
