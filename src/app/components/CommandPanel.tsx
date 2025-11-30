@@ -8,7 +8,6 @@ import { HiOutlineArrowNarrowRight } from "react-icons/hi";
 import { validateCommandString } from "../utils/commandsUtils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const BACKEND_URL = "https://20252-pi-service--AndrJoo.replit.app";
 
 type BlockType = "direita" | "esquerda" | "avancar";
 
@@ -106,7 +105,7 @@ export default function CommandPanel() {
     setIsStopping(true);
     try {
       const response = await fetch(
-        `${BACKEND_URL}/robos/${selectedDevice.id}/parar`,
+        `${BACKEND_URL}/devices/{device_id}/stop`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
