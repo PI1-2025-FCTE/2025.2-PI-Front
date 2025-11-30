@@ -86,7 +86,7 @@ describe("<Details />", () => {
   it("calcula e exibe distância percorrida e velocidade média corretamente", () => {
     const trajeto = createMockTrajeto("a0100", { 
       comandosExecutados: "a0100", 
-      tempo: 2.0,
+      tempo: 2000,
       status: true
     });
 
