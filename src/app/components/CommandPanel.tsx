@@ -104,7 +104,7 @@ export default function CommandPanel() {
     setIsStopping(true);
     try {
       const response = await fetch(
-        `${BACKEND_URL}/devices/{device_id}/stop`,
+        `${BACKEND_URL}/devices/${selectedDevice.id}/stop`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
