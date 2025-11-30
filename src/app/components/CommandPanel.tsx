@@ -8,6 +8,8 @@ import { HiOutlineArrowNarrowRight } from "react-icons/hi";
 import { validateCommandString } from "../utils/commandsUtils";
 import { API_URL } from "../constants/api";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 type BlockType = "direita" | "esquerda" | "avancar";
 
 interface CommandBlock {
@@ -104,7 +106,7 @@ export default function CommandPanel() {
     setIsStopping(true);
     try {
       const response = await fetch(
-        `${BACKEND_URL}/devices/${selectedDevice.id}/stop`,
+        `${API_URL}/devices/${selectedDevice.id}/stop`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
