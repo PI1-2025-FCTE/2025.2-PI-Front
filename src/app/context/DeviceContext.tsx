@@ -9,8 +9,7 @@ import {
 } from "react";
 
 import { toast } from "react-toastify";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { API_URL } from "../constants/api";
 
 export interface Device {
   id: string;

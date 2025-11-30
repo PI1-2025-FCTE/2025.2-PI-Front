@@ -7,8 +7,7 @@ import Link from "next/link";
 import Button from "./Button";
 import { RouteBox } from "./RouteBox";
 import { Trajeto } from "../types/trajeto";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { API_URL } from "../constants/api";
 
 type SideBarProps = {
   onClick: () => void;

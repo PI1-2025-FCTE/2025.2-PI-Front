@@ -9,8 +9,7 @@ import Map from "@/app/components/Map";
 import Button from "@/app/components/Button";
 import { Trajeto } from "@/app/types/trajeto";
 import { comandosToMarkdown, parseComandos } from "@/app/utils/commandsUtils";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { API_URL } from "@/app/constants/api";
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
