@@ -193,10 +193,11 @@ export default function CommandPanel() {
       <div className="w-full flex justify-center mt-4 flex-none">
         <button
           onClick={handleSendOrStop}
+          disabled={!selectedDevice || (!isExecuting && commandBlocks.length === 0)}
           className={`h-12 w-40 rounded-xl text-white font-bold text-lg ${
             isExecuting
               ? "bg-red-600"
-              : selectedDevice
+              : selectedDevice && commandBlocks.length > 0
               ? "bg-gray-800 hover:bg-gray-700"
               : "bg-gray-500 cursor-not-allowed"
           }`}
