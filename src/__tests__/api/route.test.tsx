@@ -53,7 +53,7 @@ describe("POST /api", () => {
   });
 
   const createRequest = (body: any) => {
-    return new NextRequest(`${process.env.NEXT_PUBLIC_API_URL}/api`, {
+    return new NextRequest(`http://localhost:3000/api`, {
       method: "POST",
       body: JSON.stringify(body),
     });

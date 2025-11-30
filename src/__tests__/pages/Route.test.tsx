@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
 import Page from "@/app/route/[id]/page";
 import axios from "axios";
 
@@ -11,31 +11,37 @@ jest.mock("@/app/components/SideBar", () => (props: any) => (
     {props.instruction && <span>INSTRUÇÃO</span>}
   </div>
 ));
+
 jest.mock("@/app/components/Header", () => (props: any) => (
   <button data-testid="header" onClick={props.onClick}>
     Header
   </button>
 ));
+
 jest.mock("@/app/components/Details", () => (props: any) => (
   <div data-testid="details">
-    {props.comandos.map((c: any, i: number) => (
-      <span key={i}>{c.tipo}</span>
-    ))}
+    <span data-testid="trajeto-comandos">{props.trajeto?.comandosEnviados}</span>
+    <span data-testid="trajeto-status">{props.trajeto?.status ? "OK" : "NOK"}</span>
   </div>
 ));
+
 jest.mock("@/app/components/Map", () => (props: any) => (
   <div data-testid="map" />
 ));
+
 jest.mock("@/app/components/Button", () => (props: any) => (
   <button onClick={props.onClick}>{props.children}</button>
 ));
+// ------------------------------------------------------------------
 
 describe("Route Page", () => {
   const mockId = "123";
   const trajetoMock = {
     idTrajeto: 1,
-    comandosEnviados: "a0010",
-    comandosExecutados: "a0010",
+    comandosEnviados: "a0010d",
+    comandosExecutados: "a0010d",
+    status: true,
+    tempo: 10
   };
 
   let originalCreateElement: typeof document.createElement;
@@ -83,7 +89,10 @@ describe("Route Page", () => {
     );
 
     const details = await screen.findByTestId("details");
-    expect(details).toHaveTextContent("a");
+    expect(details).toBeInTheDocument();
+
+    expect(screen.getByTestId("trajeto-comandos")).toHaveTextContent("a0010d");
+    
     expect(screen.getByTestId("map")).toBeInTheDocument();
     expect(screen.getByTestId("header")).toBeInTheDocument();
   });
@@ -108,12 +117,13 @@ describe("Route Page", () => {
       render(<Page params={Promise.resolve({ id: mockId })} />);
     });
 
-    const downloadButton = screen.getByText("BAIXAR RELATÓRIO");
+    const downloadButton = await screen.findByText("BAIXAR RELATÓRIO");
     fireEvent.click(downloadButton);
 
     expect(global.fetch).toHaveBeenCalledWith("/api", expect.any(Object));
 
-    const anchor = document.createElement("a") as any;
-    expect(anchor.click).toBeDefined();
+    await waitFor(() => {
+      expect(global.URL.createObjectURL).toHaveBeenCalled();
+    });
   });
 });

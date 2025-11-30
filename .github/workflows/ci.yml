@@ -30,11 +30,11 @@ jobs:
 
       - name: Run linter
         working-directory: ./src
-        run: npm run lint --if-present || echo "No lint script found"
+        run: npm run lint --if-present
 
       - name: Run tests
         working-directory: ./src
-        run: npm test --if-present || echo "No test script found"
+        run: npm test --if-present
 
       - name: Build application
         working-directory: ./src
