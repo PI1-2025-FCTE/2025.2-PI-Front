@@ -6,8 +6,7 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
 import { validateCommandString } from "../utils/commandsUtils";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { API_URL } from "../constants/api";
 
 type BlockType = "direita" | "esquerda" | "avancar";
 
