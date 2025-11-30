@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useRef } from "react"; // Adicione useRef
 import axios from "axios";
 import SideBar from "@/app/components/SideBar";
 import Header from "@/app/components/Header";
@@ -17,19 +17,41 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
   const [sideBar, setSideBar] = useState(false);
   const [trajeto, setTrajeto] = useState<Trajeto | null>(null);
+  
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleClick = () => setSideBar(!sideBar);
 
+  const handleAtualizarTrajeto = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/trajetos/${id}`);
+      const dados = response.data;
+      
+      setTrajeto(dados);
+
+      if (dados.status !== null && dados.status !== undefined) {
+        if (pollingRef.current) {
+          clearInterval(pollingRef.current);
+          pollingRef.current = null;
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar trajeto:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/trajetos/${id}`);
-        setTrajeto(response.data);
-      } catch (error) {
-        console.error("Erro ao buscar dados:", error);
+    handleAtualizarTrajeto();
+
+    pollingRef.current = setInterval(() => {
+      handleAtualizarTrajeto();
+    }, 2000);
+
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
       }
     };
-    fetchData();
   }, [id]);
 
   const downloadRelatorio = async (comandos: string, nomeArquivo: string) => {
@@ -46,11 +68,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-
       const a = document.createElement("a");
       a.href = url;
       a.download = nomeArquivo;
-
       a.click();
     } catch (error) {
       console.error("Erro ao gerar relatório:", error);
@@ -70,10 +90,13 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
               <h2 className="mt-2.5 text-white font-bold text-center">
                 DETALHES DA TRAJETÓRIA
               </h2>
-              {trajeto && <Details comandos={parseComandos(trajeto.comandosEnviados)} />}
+              {trajeto && (
+                <Details trajeto={trajeto} />
+              )}
             </div>
-            <div className="flex flex-col items-center h-auto w-[300px] lg:h-[625px] lg:w-[600px] lg:mr-5">
-              <div className="flex flex-col h-[225px] w-[300px] lg:h-[400px] lg:w-[600px] rounded-xl justify-center items-center">
+            
+             <div className="flex flex-col items-center h-auto w-[300px] lg:h-[625px] lg:w-[600px] lg:mr-5">
+              <div className="flex flex-col h-[225px] w-[300px] lg:h-[400px] lg:w-[600px] rounded-xl justify items-center">
                 <Map
                   comandosEnviados={trajeto?.comandosEnviados}
                   comandosExecutados={trajeto?.comandosExecutados}
@@ -88,6 +111,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                       : "relatorio.pdf";
                     downloadRelatorio(trajeto.comandosEnviados, nomeArquivo);
                   }}
+                  className="h-[50px]-important"
                 >
                   BAIXAR RELATÓRIO
                 </Button>

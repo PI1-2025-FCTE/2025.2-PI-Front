@@ -99,8 +99,10 @@ export default function CommandPanel() {
   };
 
   return (
-    <div className="w-full lg:w-3/5 bg-[#7398B7] rounded-xl flex flex-col justify-center items-center p-4">
-      <div className="flex gap-2 mb-4 flex-wrap">
+    <div 
+      className="w-full lg:w-3/5 bg-[#7398B7] rounded-xl flex flex-col p-4 h-[500px] lg:h-[600px]"
+    >
+      <div className="flex gap-2 mb-4 flex-wrap flex-none justify-center">
         <button
           onClick={() => addBlock("avancar", 100)}
           className="bg-gray-800 px-4 py-2 rounded-xl text-white hover:bg-gray-700"
@@ -120,11 +122,9 @@ export default function CommandPanel() {
           Virar à esquerda
         </button>
       </div>
-
-      {/* Área de blocos */}
-      <div className="w-full h-64 lg:h-72 2xl:h-96 p-5 bg-[#434343] rounded-xl overflow-y-auto flex flex-col gap-2">
+      <div className="w-full flex-1 min-h-0 p-5 bg-[#434343] rounded-xl overflow-y-auto flex flex-col gap-2 shadow-inner">
         {commandBlocks.length === 0 && (
-          <div className="text-gray-400">
+          <div className="text-gray-400 text-center mt-10">
             Clique nos botões acima para montar o comando...
           </div>
         )}
@@ -132,7 +132,7 @@ export default function CommandPanel() {
           <div
             key={index}
             data-testid={`command-block-${block.type}-${index}`}
-            className={`px-4 py-2 rounded-xl text-white flex items-center justify-between w-full max-w-[240px] ${
+            className={`px-4 py-2 rounded-xl text-white flex items-center justify-between w-full max-w-[240px] flex-none ${
               block.type === "direita"
                 ? "bg-green-600"
                 : block.type === "esquerda"
@@ -173,7 +173,7 @@ export default function CommandPanel() {
         ))}
       </div>
 
-      <div className="w-full flex justify-center mt-6">
+      <div className="w-full flex justify-center mt-4 flex-none">
         <button
           onClick={sendInstruction}
           disabled={
