@@ -27,11 +27,11 @@ export default function Details({ trajeto }: DetailsProps) {
 
   const velocidadeMedia =
     trajeto.tempo && trajeto.tempo > 0
-      ? distanciaTotal / trajeto.tempo
+      ? distanciaTotal / (trajeto.tempo / 1000)
       : undefined;
 
   const hasExecutionData = comandosExecutados && comandosExecutados.length > 0;
-  
+
   const isFinished = trajeto.status !== null || hasExecutionData;
 
   const displayStatus = trajeto.status ?? (hasExecutionData ? true : null);
@@ -39,7 +39,6 @@ export default function Details({ trajeto }: DetailsProps) {
   return (
     <div className="mt-2.5 bg-[#434343] rounded-xl h-[195px] w-[280px] lg:h-[480px] lg:w-[350px] xl:w-[610px] 2xl:h-[570px] 2xl:w-[880px] overflow-y-auto">
       <div className="text-white p-5 text-justify whitespace-pre-wrap">
-        
         {comandosEnviados.map((cmd, i) => {
           const step = i + 1;
           switch (cmd.tipo) {
@@ -77,7 +76,7 @@ export default function Details({ trajeto }: DetailsProps) {
         })}
 
         <div className="mt-4 border-t border-gray-600 pt-3">
-          <h3 className="text-white font-semibold mb-2">Análise do Trajeto</h3>
+          <h3 className="text-white font-semibold mb-2">Resumo do Trajeto</h3>
 
           {!isFinished && (
             <div className="flex flex-col gap-2">
@@ -107,7 +106,7 @@ export default function Details({ trajeto }: DetailsProps) {
               <p>Distância percorrida: {distanciaTotal} cm</p>
 
               {trajeto.tempo !== null && trajeto.tempo !== undefined && (
-                <p>Tempo total: {trajeto.tempo.toFixed(2)} s</p>
+                <p>Tempo total: {(trajeto.tempo / 1000).toFixed(2)} s</p>
               )}
 
               {velocidadeMedia !== undefined && (
