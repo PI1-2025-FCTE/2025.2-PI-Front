@@ -18,6 +18,7 @@ interface CommandBlock {
 export default function CommandPanel() {
   const { selectedDevice } = useDevices();
   const [commandBlocks, setCommandBlocks] = useState<CommandBlock[]>([]);
+  const [isExecuting, setIsExecuting] = useState(false);
 
   const addBlock = (type: BlockType, value?: number) => {
     setCommandBlocks((prev) => [...prev, { type, value }]);
@@ -58,6 +59,9 @@ export default function CommandPanel() {
       return;
     }
 
+    setIsExecuting(true);
+    setCommandBlocks([]);
+
     try {
       const response = await fetch(
         `${API_URL}/trajetos/${selectedDevice.id}`,
@@ -71,6 +75,7 @@ export default function CommandPanel() {
       if (!response.ok) {
         const data = await response.json();
         toast.error(`Erro: ${data.detail || "Falha ao enviar comando"}`);
+        setIsExecuting(false);
         return;
       }
 
@@ -90,10 +95,22 @@ export default function CommandPanel() {
           </Link>
         </div>
       );
-
-      setCommandBlocks([]);
     } catch (err: any) {
       toast.error(`Erro ao enviar comando: ${err.message || err}`);
+      setIsExecuting(false);
+    }
+  };
+
+  const handleSendOrStop = async () => {
+    if (isExecuting) {
+      if (!selectedDevice) return;
+      setIsExecuting(false);
+      await fetch(`${API_URL}/devices/${selectedDevice.id}/stop`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+    } else {
+      await sendInstruction();
     }
   };
 
@@ -174,19 +191,17 @@ export default function CommandPanel() {
 
       <div className="w-full flex justify-center mt-4 flex-none">
         <button
-          onClick={sendInstruction}
-          disabled={
-            !selectedDevice ||
-            !selectedDevice.online ||
-            commandBlocks.length === 0
-          }
-          className={`h-10 w-32 rounded-xl text-white transition ${
-            selectedDevice && selectedDevice.online
+          onClick={handleSendOrStop}
+          disabled={!selectedDevice || (!isExecuting && commandBlocks.length === 0)}
+          className={`h-12 w-40 rounded-xl text-white font-bold text-lg ${
+            isExecuting
+              ? "bg-red-600"
+              : selectedDevice && commandBlocks.length > 0
               ? "bg-gray-800 hover:bg-gray-700"
-              : "bg-gray-600 cursor-not-allowed"
+              : "bg-gray-500 cursor-not-allowed"
           }`}
         >
-          Enviar
+          {isExecuting ? "Parar" : "Enviar"}
         </button>
       </div>
     </div>
